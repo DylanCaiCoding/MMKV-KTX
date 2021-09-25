@@ -10,10 +10,10 @@
     android:label="@string/app_name"
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
-    android:theme="@style/Theme.MMKVKTX">
+    android:theme="@style/Theme.MMKVSample">
     <activity
       android:name=".MainActivity"
-      android:exported="false">
+      android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -21,14 +21,16 @@
       </intent-filter>
     </activity>
 
-    <!--        <provider-->
-    <!--          android:name="androidx.startup.InitializationProvider"-->
-    <!--          android:authorities="${applicationId}.androidx-startup"-->
-    <!--          android:exported="false"-->
-    <!--          tools:node="merge">-->
-    <!--          <meta-data android:name="com.dylanc.mmkv.MMKVInitializer"-->
-    <!--            tools:node="remove" />-->
-    <!--        </provider>-->
+    <!--  If you want to customize MMKV's root directory, add the following provider  -->
+    <provider
+      android:name="androidx.startup.InitializationProvider"
+      android:authorities="${applicationId}.androidx-startup"
+      android:exported="false"
+      tools:node="merge">
+      <meta-data
+        android:name="com.dylanc.mmkv.MMKVInitializer"
+        tools:node="remove" />
+    </provider>
   </application>
 
 </manifest>
