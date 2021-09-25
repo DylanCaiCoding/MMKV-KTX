@@ -24,11 +24,23 @@ import kotlin.reflect.KProperty
 /**
  * @author Dylan Cai
  */
-
-private val defaultMMKV = MMKV.defaultMMKV()
-
 interface MMKVOwner {
-  val kv: MMKV get() = defaultMMKV
+
+  val kv: MMKV
+    get() {
+      val clazzName = javaClass.name
+      if (!mmkvMap.containsKey(clazzName)) {
+        customMMKV?.let { mmkvMap[clazzName] = it }
+      }
+      return mmkvMap.getValue(clazzName)
+    }
+
+  val customMMKV: MMKV? get() = null
+
+  companion object {
+    private val mmkvMap = mutableMapOf<String, MMKV>()
+      .withDefault { MMKV.defaultMMKV() }
+  }
 }
 
 fun MMKVOwner.mmkvInt(default: Int = 0) =
@@ -70,10 +82,10 @@ inline fun <reified T : Parcelable> MMKVOwner.mmkvParcelable() =
 fun <T : Parcelable> MMKVOwner.mmkvParcelable(clazz: Class<T>) =
   object : ReadWriteProperty<MMKVOwner, T?> {
     override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): T? =
-      kv.decodeParcelable(getKey(property), clazz)
+      kv.decodeParcelable(property.name, clazz)
 
     override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: T?) {
-      kv.encode(getKey(property), value)
+      kv.encode(property.name, value)
     }
   }
 
@@ -83,50 +95,47 @@ inline fun <reified T : Parcelable> MMKVOwner.mmkvParcelable(default: T) =
 fun <T : Parcelable> MMKVOwner.mmkvParcelable(clazz: Class<T>, default: T) =
   object : ReadWriteProperty<MMKVOwner, T> {
     override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): T =
-      kv.decodeParcelable(getKey(property), clazz) ?: default
+      kv.decodeParcelable(property.name, clazz) ?: default
 
     override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: T) {
-      kv.encode(getKey(property), value)
+      kv.encode(property.name, value)
     }
   }
 
 private inline fun <V> MMKV.property(
-  crossinline getValue: MMKV.(String, V) -> V,
-  crossinline putValue: MMKV.(String, V) -> Boolean,
+  crossinline decode: MMKV.(String, V) -> V,
+  crossinline encode: MMKV.(String, V) -> Boolean,
   defaultValue: V
 ) = object : ReadWriteProperty<MMKVOwner, V> {
   override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): V =
-    getValue(thisRef.getKey(property), defaultValue)
+    decode(property.name, defaultValue)
 
   override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: V) {
-    putValue(thisRef.getKey(property), value)
+    encode(property.name, value)
   }
 }
 
 private inline fun <V> MMKV.nullableProperty(
-  crossinline getValue: MMKV.(String, V?) -> V?,
-  crossinline putValue: MMKV.(String, V?) -> Boolean
+  crossinline decode: MMKV.(String, V?) -> V?,
+  crossinline encode: MMKV.(String, V?) -> Boolean
 ) = object : ReadWriteProperty<MMKVOwner, V?> {
   override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): V? =
-    getValue(thisRef.getKey(property), null)
+    decode(property.name, null)
 
   override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: V?) {
-    putValue(thisRef.getKey(property), value)
+    encode(property.name, value)
   }
 }
 
 private inline fun <V> MMKV.nullablePropertyWithDefault(
-  crossinline getValue: MMKV.(String, V?) -> V?,
-  crossinline putValue: MMKV.(String, V?) -> Boolean,
+  crossinline decode: MMKV.(String, V?) -> V?,
+  crossinline encode: MMKV.(String, V?) -> Boolean,
   defaultValue: V
 ) = object : ReadWriteProperty<MMKVOwner, V> {
   override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): V =
-    getValue(thisRef.getKey(property), null) ?: defaultValue
+    decode(property.name, null) ?: defaultValue
 
   override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: V) {
-    putValue(thisRef.getKey(property), value)
+    encode(property.name, value)
   }
 }
-
-private fun MMKVOwner.getKey(property: KProperty<*>) =
-  "${javaClass.canonicalName}_${property.name}"

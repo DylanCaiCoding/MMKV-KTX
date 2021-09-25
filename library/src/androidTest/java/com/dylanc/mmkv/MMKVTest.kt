@@ -2,6 +2,7 @@ package com.dylanc.mmkv
 
 import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tencent.mmkv.MMKV
 import kotlinx.parcelize.Parcelize
 import org.junit.Assert
 import org.junit.Before
@@ -25,6 +26,9 @@ class MMKVTest {
     Assert.assertEquals(0, DataRepository.i1)
     DataRepository.i1 = 6
     Assert.assertEquals(6, DataRepository.i1)
+    DataRepository.removeInt()
+    Assert.assertFalse(DataRepository.containsI1())
+    Assert.assertEquals(0, DataRepository.i1)
   }
 
   @Test
@@ -32,6 +36,8 @@ class MMKVTest {
     Assert.assertEquals(-1, DataRepository.i2)
     DataRepository.i2 = 6
     Assert.assertEquals(6, DataRepository.i2)
+    DataRepository.removeInt()
+    Assert.assertEquals(-1, DataRepository.i2)
   }
 
   @Test
@@ -151,6 +157,9 @@ class MMKVTest {
   }
 }
 
+@Parcelize
+data class User(val id: Long, val name: String) : Parcelable
+
 object DataRepository : MMKVOwner {
   var i1 by mmkvInt()
   var i2 by mmkvInt(default = -1)
@@ -171,10 +180,16 @@ object DataRepository : MMKVOwner {
   var user1 by mmkvParcelable<User>()
   var user2 by mmkvParcelable(default = User(0, "Admin"))
 
+  fun removeInt() {
+    kv.removeValuesForKeys(arrayOf(::i1.name, ::i2.name))
+  }
+
+  fun containsI1() = kv.containsKey(::i1.name)
+
   fun clearAll() {
     kv.clearAll()
   }
-}
 
-@Parcelize
-data class User(val id: Long, val name: String) : Parcelable
+  override val customMMKV: MMKV?
+    get() = MMKV.mmkvWithID("MyID")
+}
