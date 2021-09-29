@@ -10,8 +10,8 @@ class App : Application() {
 
   override fun onCreate() {
     super.onCreate()
-    // When you remove the InitializationProvider in the AndroidManifest,
-    // you can customize MMKV's root directory.
+    // If you added the InitializationProvider in the AndroidManifest,
+    // you can customize the root directory of MMKV.
     val dir = "${filesDir?.absolutePath}/mmkv_2"
     MMKV.initialize(this, dir)
   }

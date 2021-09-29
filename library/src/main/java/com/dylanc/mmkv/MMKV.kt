@@ -22,6 +22,17 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
+ * A class that has a MMKV object. If you want to customize the MMKV,
+ * you can override the customMMKV object. For example:
+ *
+ * ```kotlin
+ * object DataRepository : MMKVOwner {
+ *
+ *   override val customMMKV: MMKV?
+ *     get() = MMKV.mmkvWithID("MyID")
+ * }
+ * ```
+ *
  * @author Dylan Cai
  */
 interface MMKVOwner {
