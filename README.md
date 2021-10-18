@@ -24,7 +24,7 @@ Add dependencies in your module `build.gradle` :
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.0.0'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.12.0'
 }
 ```
 
@@ -60,21 +60,20 @@ kv.removeValueForKey(::user.name)
 kv.clearAll()
 ```
 
-If different modules/logics need **isolated storage**, you can override the `customMMKV` to create your own `MMKV` instance separately:
+If different modules/logics need **isolated storage**, you can override the `kv` to create your own `MMKV` instance separately:
 
 ```kotlin
 object DataRepository : MMKVOwner {
-  override val customMMKV: MMKV?
-    get() = MMKV.mmkvWithID("MyID")
+  override val kv: MMKV = MMKV.mmkvWithID("MyID")
 }
 ```
 
 ## Author's other libraries
 
+- [Longan](https://github.com/DylanCaiCoding/Longan), a collection of Kotlin utils which makes Android application development faster and easier.
 - [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView), a highly expandable Android library for decoupling the code of toolbar or loading status view.
-
 - [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX), the most comprehensive utils of ViewBinding.
-- [ActivityResultLauncher](https://github.com/DylanCaiCoding/ActivityResultLauncher), perfect replacement for `startActivityForResult()`
+- [ActivityResultLauncher](https://github.com/DylanCaiCoding/ActivityResultLauncher), perfect replacement for `startActivityForResult()`.
 
 ## License
 
