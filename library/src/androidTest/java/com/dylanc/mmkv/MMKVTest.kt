@@ -35,8 +35,7 @@ class MMKVTest : MMKVOwner {
   private var user1 by mmkvParcelable<User>()
   private var user2 by mmkvParcelable(default = User(0, "Admin"))
 
-  override val customMMKV: MMKV?
-    get() = MMKV.mmkvWithID("repo")
+  override val kv: MMKV = MMKV.mmkvWithID("repo")
 
   @Before
   fun clear() {
