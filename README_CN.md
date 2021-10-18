@@ -4,7 +4,7 @@
 
 [![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX) [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/LoadingStateView/blob/master/LICENSE)
 
-使用 [MMKV]() 更加简单，无需初始化 MMKV，无需传 Key 值。
+使用 [MMKV](https://github.com/Tencent/MMKV) 更加简单，无需初始化 MMKV，无需传 Key 值。
 
 
 ## 用法
@@ -24,7 +24,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.0.0'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.12.0'
 }
 ```
 
@@ -41,8 +41,8 @@ object DataRepository : MMKVOwner {
 
 支持以下类型：
 
-| 方法             | 默认值 |
-| ---------------- | ------ |
+| 方法               | 默认值 |
+| ------------------ | ------ |
 | `mmkvInt()`        | 0      |
 | `mmkvLong()`       | 0L     |
 | `mmkvBool()`       | false  |
@@ -60,20 +60,22 @@ kv.removeValueForKey(::isFirstLaunch.name)
 kv.clearAll()
 ```
 
-如果不同业务需要**区别存储**，可以重写 `customMMKV` 创建不同的 `MMKV` 实例：
+如果不同业务需要**区别存储**，可以重写 `kv` 属性来创建不同的 `MMKV` 实例：
 
 ```kotlin
 object DataRepository : MMKVOwner {
-  override val customMMKV: MMKV?
-    get() = MMKV.mmkvWithID("MyID")
+  override val kv: MMKV = MMKV.mmkvWithID("MyID")
 }
 ```
 
 ## 作者其它的库
 
-- [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) —— 最全面的 ViewBinding 工具
-- [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) —— 深度解耦标题栏或加载中、加载失败、无数据等视图
-- [ActivityResultLauncher](https://github.com/DylanCaiCoding/ActivityResultLauncher) —— 优雅地替代 `startActivityForResult()`
+| 库                                                           | 简介                                           |
+| ------------------------------------------------------------ | ---------------------------------------------- |
+| [Longan](https://github.com/DylanCaiCoding/Longan)           | 一个简化 Android 开发的 Kotlin 工具类集合      |
+| [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | 深度解耦标题栏或加载中、加载失败、无数据等视图 |
+| [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | 最全面的 ViewBinding 工具                      |
+| [ActivityResultLauncher](https://github.com/DylanCaiCoding/ActivityResultLauncher) | 优雅地替代 `startActivityForResult()`          |
 
 ## License
 
