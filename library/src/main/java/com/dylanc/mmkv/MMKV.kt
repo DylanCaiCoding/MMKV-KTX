@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused", "NOTHING_TO_INLINE")
+@file:Suppress("unused")
 
 package com.dylanc.mmkv
 
@@ -41,37 +41,37 @@ interface MMKVOwner {
     get() = MMKV.defaultMMKV()
 }
 
-inline fun MMKVOwner.mmkvInt(default: Int = 0) =
+fun MMKVOwner.mmkvInt(default: Int = 0) =
   MMKVProperty(this, MMKV::decodeInt, MMKV::encode, default)
 
-inline fun MMKVOwner.mmkvLong(default: Long = 0L) =
+fun MMKVOwner.mmkvLong(default: Long = 0L) =
   MMKVProperty(this, MMKV::decodeLong, MMKV::encode, default)
 
-inline fun MMKVOwner.mmkvBool(default: Boolean = false) =
+fun MMKVOwner.mmkvBool(default: Boolean = false) =
   MMKVProperty(this, MMKV::decodeBool, MMKV::encode, default)
 
-inline fun MMKVOwner.mmkvFloat(default: Float = 0f) =
+fun MMKVOwner.mmkvFloat(default: Float = 0f) =
   MMKVProperty(this, MMKV::decodeFloat, MMKV::encode, default)
 
-inline fun MMKVOwner.mmkvDouble(default: Double = 0.0) =
+fun MMKVOwner.mmkvDouble(default: Double = 0.0) =
   MMKVProperty(this, MMKV::decodeDouble, MMKV::encode, default)
 
-inline fun MMKVOwner.mmkvString() =
+fun MMKVOwner.mmkvString() =
   MMKVNullableProperty(this, MMKV::decodeString, MMKV::encode)
 
-inline fun MMKVOwner.mmkvString(default: String) =
+fun MMKVOwner.mmkvString(default: String) =
   MMKVNullablePropertyWithDefault(this, MMKV::decodeString, MMKV::encode, default)
 
-inline fun MMKVOwner.mmkvStringSet(): ReadWriteProperty<MMKVOwner, Set<String>?> =
+fun MMKVOwner.mmkvStringSet(): ReadWriteProperty<MMKVOwner, Set<String>?> =
   MMKVNullableProperty(this, MMKV::decodeStringSet, MMKV::encode)
 
-inline fun MMKVOwner.mmkvStringSet(default: Set<String>) =
+fun MMKVOwner.mmkvStringSet(default: Set<String>) =
   MMKVNullablePropertyWithDefault(this, MMKV::decodeStringSet, MMKV::encode, default)
 
-inline fun MMKVOwner.mmkvBytes() =
+fun MMKVOwner.mmkvBytes() =
   MMKVNullableProperty(this, MMKV::decodeBytes, MMKV::encode)
 
-inline fun MMKVOwner.mmkvBytes(default: ByteArray) =
+fun MMKVOwner.mmkvBytes(default: ByteArray) =
   MMKVNullablePropertyWithDefault(this, MMKV::decodeBytes, MMKV::encode, default)
 
 inline fun <reified T : Parcelable> MMKVOwner.mmkvParcelable() =
