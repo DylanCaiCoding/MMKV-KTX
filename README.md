@@ -68,12 +68,18 @@ object DataRepository : MMKVOwner {
 }
 ```
 
+## Change log
+
+[Releases](https://github.com/DylanCaiCoding/MMKV-KTX/releases)
+
 ## Author's other libraries
 
-- [Longan](https://github.com/DylanCaiCoding/Longan), a collection of Kotlin utils which makes Android application development faster and easier.
-- [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView), a highly expandable Android library for decoupling the code of toolbar or loading status view.
-- [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX), the most comprehensive utils of ViewBinding.
-- [ActivityResultLauncher](https://github.com/DylanCaiCoding/ActivityResultLauncher), perfect replacement for `startActivityForResult()`.
+| Library                                                      | Description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [Longan](https://github.com/DylanCaiCoding/Longan)           | A collection of Kotlin utils which makes Android application development faster and easier. |
+| [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | Decoupling the code of toolbar or loading status view.       |
+| [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | The most comprehensive utils of ViewBinding.                 |
+| [ActivityResultLauncher](https://github.com/DylanCaiCoding/ActivityResultLauncher) | Replace startActivityForResult() method gracefully.          |
 
 ## License
 
