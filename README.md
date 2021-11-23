@@ -24,7 +24,7 @@ Add dependencies in your module `build.gradle` :
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.12.0'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.11'
 }
 ```
 
@@ -67,6 +67,8 @@ object DataRepository : MMKVOwner {
   override val kv: MMKV = MMKV.mmkvWithID("MyID")
 }
 ```
+
+See the [unit test](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/library/src/androidTest/java/com/dylanc/mmkv/MMKVTest.kt) code for the full usage.
 
 ## Change log
 
