@@ -24,7 +24,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.12.0'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.11'
 }
 ```
 
@@ -67,6 +67,8 @@ object DataRepository : MMKVOwner {
   override val kv: MMKV = MMKV.mmkvWithID("MyID")
 }
 ```
+
+完整的用法可查看[单元测试](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/library/src/androidTest/java/com/dylanc/mmkv/MMKVTest.kt)代码。
 
 ## 更新日志
 
