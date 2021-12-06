@@ -37,8 +37,11 @@ import kotlin.reflect.KProperty
  * @author Dylan Cai
  */
 interface MMKVOwner {
-  val kv: MMKV
-    get() = MMKV.defaultMMKV()
+  val kv: MMKV get() = defaultMMKV
+
+  companion object {
+    private val defaultMMKV = MMKV.defaultMMKV()
+  }
 }
 
 fun MMKVOwner.mmkvInt(default: Int = 0) =
