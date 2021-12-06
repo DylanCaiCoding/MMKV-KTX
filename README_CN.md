@@ -24,7 +24,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.12.0'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.11'
 }
 ```
 
@@ -68,11 +68,17 @@ object DataRepository : MMKVOwner {
 }
 ```
 
+完整的用法可查看[单元测试](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/library/src/androidTest/java/com/dylanc/mmkv/MMKVTest.kt)代码。
+
+## 更新日志
+
+[Releases](https://github.com/DylanCaiCoding/MMKV-KTX/releases)
+
 ## 作者其它的库
 
 | 库                                                           | 简介                                           |
 | ------------------------------------------------------------ | ---------------------------------------------- |
-| [Longan](https://github.com/DylanCaiCoding/Longan)           | 一个简化 Android 开发的 Kotlin 工具类集合      |
+| [Longan](https://github.com/DylanCaiCoding/Longan)           | 简化 Android 开发的 Kotlin 工具类集合      |
 | [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | 深度解耦标题栏或加载中、加载失败、无数据等视图 |
 | [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | 最全面的 ViewBinding 工具                      |
 | [ActivityResultLauncher](https://github.com/DylanCaiCoding/ActivityResultLauncher) | 优雅地替代 `startActivityForResult()`          |
