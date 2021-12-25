@@ -78,10 +78,9 @@ See the [unit test](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/libra
 
 | Library                                                      | Description                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [Longan](https://github.com/DylanCaiCoding/Longan)           | A collection of Kotlin utils which makes Android application development faster and easier. |
+| [Longan](https://github.com/DylanCaiCoding/Longan)           | A collection of Kotlin utils.                                |
 | [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | Decoupling the code of toolbar or loading status view.       |
 | [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | The most comprehensive utils of ViewBinding.                 |
-| [ActivityResultLauncher](https://github.com/DylanCaiCoding/ActivityResultLauncher) | Replace startActivityForResult() method gracefully.          |
 
 ## License
 
