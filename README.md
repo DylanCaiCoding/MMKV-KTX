@@ -1,11 +1,11 @@
 # MMKV-KTX
 
-English | [中文](README_CN.md)
+English | [中文](README_ZH.md)
 
-[![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX) [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/LoadingStateView/blob/master/LICENSE)
+[![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX) 
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/LoadingStateView/blob/master/LICENSE)
 
 It's easier to use the [MMKV](https://github.com/Tencent/MMKV) without initializing the MMKV and defining the Key value.
-
 
 ## Usage
 
@@ -81,6 +81,7 @@ See the [unit test](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/libra
 | [Longan](https://github.com/DylanCaiCoding/Longan)           | A collection of Kotlin utils.                                |
 | [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | Decoupling the code of toolbar or loading status view.       |
 | [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | The most comprehensive utils of ViewBinding.                 |
+| [Tracker](https://github.com/DylanCaiCoding/Tracker)       | A lightweight tracking framework based on the tracking idea of Buzzvideo.|
 
 ## License
 
