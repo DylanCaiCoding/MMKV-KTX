@@ -1,3 +1,3 @@
 rootProject.name = "MMKV-KTX"
-include ':app'
+include ':sample'
 include ':library'
