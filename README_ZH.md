@@ -9,6 +9,10 @@
 
 ## 用法
 
+:pencil: **[>> 使用文档 <<](https://dylancaicoding.github.io/MMKV-KTX)**
+
+## 快速入门
+
 在根目录的 `build.gradle` 添加:
 
 ```groovy
@@ -28,7 +32,7 @@ dependencies {
 }
 ```
 
-让一个类实现 `MMKVOwner` 接口，即可通过 `by mmkvXXXX()` 方法将属性委托给 `MMKV`，例如：
+让一个类实现 `MMKVOwner` 接口，即可在该类使用 `by mmkvXXXX()` 函数将属性委托给 `MMKV`，例如：
 
 ```kotlin
 object DataRepository : MMKVOwner {
@@ -37,11 +41,11 @@ object DataRepository : MMKVOwner {
 }
 ```
 
-设置或获取属性的值则调用对应的 encode 或 decode 方法，key 值为属性名。
+设置或获取属性的值会调用对应的 encode() 或 decode() 函数，**用属性名作为 key 值**。
 
 支持以下类型：
 
-| 方法               | 默认值 |
+| 函数               | 默认值 |
 | ------------------ | ------ |
 | `mmkvInt()`        | 0      |
 | `mmkvLong()`       | 0L     |
@@ -53,22 +57,7 @@ object DataRepository : MMKVOwner {
 | `mmkvBytes()`      | /      |
 | `mmkvParcelable()` | /      |
 
-在 `MMKVOwner` 的实现类可以获取 `kv` 对象进行删除值或清理缓存等操作：
-
-```kotlin
-kv.removeValueForKey(::isFirstLaunch.name)
-kv.clearAll()
-```
-
-如果不同业务需要**区别存储**，可以重写 `kv` 属性来创建不同的 `MMKV` 实例：
-
-```kotlin
-object DataRepository : MMKVOwner {
-  override val kv: MMKV = MMKV.mmkvWithID("MyID")
-}
-```
-
-完整的用法可查看[单元测试](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/library/src/androidTest/java/com/dylanc/mmkv/MMKVTest.kt)代码。
+更多进阶用法请查看[使用文档](https://dylancaicoding.github.io/MMKV-KTX)。
 
 ## 更新日志
 
