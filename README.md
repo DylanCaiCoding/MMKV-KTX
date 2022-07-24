@@ -9,6 +9,10 @@ It's easier to use the [MMKV](https://github.com/Tencent/MMKV) without initializ
 
 ## Usage
 
+:pencil: **[>> Usage documentation <<](https://dylancaicoding.github.io/MMKV-KTX)**
+
+## Quick start
+
 Add it in your root `build.gradle` at the end of repositories:
 
 ```groovy
@@ -60,15 +64,7 @@ kv.removeValueForKey(::user.name)
 kv.clearAll()
 ```
 
-If different modules/logics need **isolated storage**, you can override the `kv` to create your own `MMKV` instance separately:
-
-```kotlin
-object DataRepository : MMKVOwner {
-  override val kv: MMKV = MMKV.mmkvWithID("MyID")
-}
-```
-
-See the [unit test](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/library/src/androidTest/java/com/dylanc/mmkv/MMKVTest.kt) code for the full usage.
+See the [usage documentation](https://dylancaicoding.github.io/MMKV-KTX) for more advanced usage.
 
 ## Change log
 
@@ -78,7 +74,7 @@ See the [unit test](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/libra
 
 | Library                                                      | Description                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [Longan](https://github.com/DylanCaiCoding/Longan)           | A collection of Kotlin utils.                                |
+| [Longan](https://github.com/DylanCaiCoding/Longan)           | Probably the best Kotlin utils library for Android.         |
 | [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | Decoupling the code of toolbar or loading status view.       |
 | [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | The most comprehensive utils of ViewBinding.                 |
 | [Tracker](https://github.com/DylanCaiCoding/Tracker)       | A lightweight tracking framework based on the tracking idea of Buzzvideo.|
