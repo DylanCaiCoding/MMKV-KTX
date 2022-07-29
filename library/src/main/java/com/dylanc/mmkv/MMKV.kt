@@ -58,22 +58,22 @@ fun MMKVOwner.mmkvDouble(default: Double = 0.0) =
   MMKVProperty(MMKV::decodeDouble, MMKV::encode, default)
 
 fun MMKVOwner.mmkvString() =
-  MMKVNullableProperty(MMKV::decodeString, MMKV::encode)
+  MMKVProperty(MMKV::decodeString, MMKV::encode, null)
 
 fun MMKVOwner.mmkvString(default: String) =
-  MMKVNullablePropertyWithDefault(MMKV::decodeString, MMKV::encode, default)
+  MMKVPropertyWithDefault(MMKV::decodeString, MMKV::encode, default)
 
 fun MMKVOwner.mmkvStringSet(): ReadWriteProperty<MMKVOwner, Set<String>?> =
-  MMKVNullableProperty(MMKV::decodeStringSet, MMKV::encode)
+  MMKVProperty(MMKV::decodeStringSet, MMKV::encode, null)
 
 fun MMKVOwner.mmkvStringSet(default: Set<String>) =
-  MMKVNullablePropertyWithDefault(MMKV::decodeStringSet, MMKV::encode, default)
+  MMKVPropertyWithDefault(MMKV::decodeStringSet, MMKV::encode, default)
 
 fun MMKVOwner.mmkvBytes() =
-  MMKVNullableProperty(MMKV::decodeBytes, MMKV::encode)
+  MMKVProperty(MMKV::decodeBytes, MMKV::encode, null)
 
 fun MMKVOwner.mmkvBytes(default: ByteArray) =
-  MMKVNullablePropertyWithDefault(MMKV::decodeBytes, MMKV::encode, default)
+  MMKVPropertyWithDefault(MMKV::decodeBytes, MMKV::encode, default)
 
 inline fun <reified T : Parcelable> MMKVOwner.mmkvParcelable() =
   MMKVParcelableProperty(T::class.java)
@@ -94,19 +94,7 @@ class MMKVProperty<V>(
   }
 }
 
-class MMKVNullableProperty<V>(
-  private val decode: MMKV.(String, V?) -> V?,
-  private val encode: MMKV.(String, V?) -> Boolean
-) : ReadWriteProperty<MMKVOwner, V?> {
-  override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): V? =
-    thisRef.kv.decode(property.name, null)
-
-  override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: V?) {
-    thisRef.kv.encode(property.name, value)
-  }
-}
-
-class MMKVNullablePropertyWithDefault<V>(
+class MMKVPropertyWithDefault<V>(
   private val decode: MMKV.(String, V?) -> V?,
   private val encode: MMKV.(String, V?) -> Boolean,
   private val defaultValue: V
