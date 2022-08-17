@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused")
-
 package com.dylanc.mmkv
 
 import android.os.Parcelable
@@ -24,23 +22,26 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
- * A class that has a MMKV object. If you want to customize the MMKV,
- * you can override the kv object. For example:
+ * A class that has a MMKV instance. If you want to customize the MMKV, you can override
+ * the kv property. For example:
  *
  * ```kotlin
  * object DataRepository : MMKVOwner {
- *
- *   override val kv: MMKV = MMKV.mmkvWithID("MyID")
+ *   override val kv = MMKV.mmkvWithID("MyID")
  * }
  * ```
  *
  * @author Dylan Cai
  */
 interface MMKVOwner {
-  val kv: MMKV get() = com.dylanc.mmkv.kv
-}
+  val kv: MMKV
+    get() = default ?: throw IllegalStateException("If you use MMKV in Application, you should set MMKVOwner.default first.")
 
-val kv: MMKV = MMKV.defaultMMKV()
+  companion object {
+    @JvmStatic
+    var default: MMKV? = null
+  }
+}
 
 fun MMKVOwner.mmkvInt(default: Int = 0) =
   MMKVProperty({ kv.decodeInt(it, default) }, { kv.encode(first, second) })
@@ -91,7 +92,8 @@ class MMKVProperty<V>(
     cache ?: decode(property.name).also { cache = it }
 
   override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: V) {
-    cache = value
-    encode(property.name to value)
+    if (encode(property.name to value)) {
+      cache = value
+    }
   }
 }
