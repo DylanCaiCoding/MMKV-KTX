@@ -28,7 +28,7 @@ Add dependencies in your module `build.gradle` :
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.13'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.14'
 }
 ```
 
