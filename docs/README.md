@@ -62,6 +62,18 @@ kv.clearAll()
 
 ## 进阶用法
 
+### 手动初始化 MMKV
+
+在 Application 设置 `MMKVOwner.default` 即可取消默认的初始化操作。
+
+```kotlin
+val dir = filesDir.absolutePath + "/mmkv_2"
+MMKV.initialize(this, dir)
+MMKVOwner.default = MMKV.mmkvWithID("MyID")
+```
+
+在老项目使用本库时需要避免多次初始化 MMKV，否则数据可能会有异常。
+
 ### 区别存储
 
 比如我们在组件化项目进行开发，各自负责的模块是不知道别人用了什么 key 值，重名了可能被覆盖。这就可以重写 `kv` 属性创建不同的 `MMKV` 实例来规避这个问题。
@@ -86,30 +98,6 @@ object DataRepository : MMKVOwner {
   
   override val kv = MMKV.mmkvWithID("MyID", MMKV.SINGLE_PROCESS_MODE, cryptKey)
 }
-```
-
-### 取消自动初始化 MMKV
-
-比如需要自定义 MMKV 文件的更目录，或者有个小伙伴反馈在老项目使用本库时存在数据保存不成功的情况，后来发现是多次初始化 MMKV 导致的，此时可以取消本库自动初始化 MMKV。
-
-需要添加 App Startup 的依赖：
-
-```groovy
-implementation "androidx.startup:startup-runtime:1.1.0"
-```
-
-然后在 `AndroidManifest.xml` 添加以下代码就能取消自动初始化：
-
-```xml
-<provider
-  android:name="androidx.startup.InitializationProvider"
-  android:authorities="${applicationId}.androidx-startup"
-  android:exported="false"
-  tools:node="merge">
-  <meta-data
-    android:name="com.dylanc.mmkv.MMKVInitializer"
-    tools:node="remove" />
-</provider>
 ```
 
 ## 更新日志
