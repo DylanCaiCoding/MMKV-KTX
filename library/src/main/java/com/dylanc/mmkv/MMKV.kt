@@ -17,7 +17,9 @@
 package com.dylanc.mmkv
 
 import android.os.Parcelable
+import androidx.lifecycle.MutableLiveData
 import com.tencent.mmkv.MMKV
+import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -82,18 +84,30 @@ inline fun <reified T : Parcelable> MMKVOwner.mmkvParcelable() =
 inline fun <reified T : Parcelable> MMKVOwner.mmkvParcelable(default: T) =
   MMKVProperty({ kv.decodeParcelable(it, T::class.java) ?: default }, { kv.encode(first, second) })
 
+fun <V> MMKVProperty<V>.asLiveData() = object : ReadOnlyProperty<MMKVOwner, MutableLiveData<V>> {
+  private var cache: MutableLiveData<V>? = null
+
+  override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): MutableLiveData<V> =
+    cache ?: object : MutableLiveData<V>() {
+      override fun setValue(value: V) {
+        if (super.getValue() == value) return
+        this@asLiveData.setValue(thisRef, property, value)
+        super.setValue(value)
+      }
+
+      override fun getValue(): V? = this@asLiveData.getValue(thisRef, property)
+    }.also { cache = it }
+}
+
 class MMKVProperty<V>(
   private val decode: (String) -> V,
   private val encode: Pair<String, V>.() -> Boolean
 ) : ReadWriteProperty<MMKVOwner, V> {
-  private var cache: V? = null
 
   override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): V =
-    cache ?: decode(property.name).also { cache = it }
+    decode(property.name)
 
   override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: V) {
-    if (encode(property.name to value)) {
-      cache = value
-    }
+    encode(property.name to value)
   }
 }
