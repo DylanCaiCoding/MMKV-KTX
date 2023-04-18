@@ -64,12 +64,19 @@ kv.clearAll()
 
 ### 手动初始化 MMKV
 
-在 Application 设置 `MMKVOwner.default` 即可取消默认的初始化操作。
+在 Application 设置 `MMKVOwner.default` 即可取消默认的初始化操作。比如自定义文件保存的根目录：
 
 ```kotlin
 val dir = filesDir.absolutePath + "/mmkv_2"
 MMKV.initialize(this, dir)
-MMKVOwner.default = MMKV.mmkvWithID("MyID")
+MMKVOwner.default = MMKV.defaultMMKV()
+```
+
+或者需要修改默认的 MMKV 实例，比如业务需要支持多进程：
+
+```kotlin
+MMKV.initialize(this)
+MMKVOwner.default = MMKV.mmkvWithID("InterProcessKV", MMKV.MULTI_PROCESS_MODE)
 ```
 
 在老项目使用本库时需要避免多次初始化 MMKV，否则数据可能会有异常。
