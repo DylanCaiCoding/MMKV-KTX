@@ -35,6 +35,7 @@ android {
 dependencies {
     api "com.tencent:mmkv-static:$mmkvVersion"
     implementation "androidx.startup:startup-runtime:$startupVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:$lifecycleLivedataVersion"
     androidTestImplementation "androidx.test.ext:junit:$junitExtVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 }
