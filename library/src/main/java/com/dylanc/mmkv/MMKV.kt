@@ -89,6 +89,10 @@ fun <V> MMKVProperty<V>.asLiveData() = object : ReadOnlyProperty<MMKVOwner, Muta
 
   override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): MutableLiveData<V> =
     cache ?: object : MutableLiveData<V>() {
+      init {
+        this@asLiveData.getValue(thisRef, property)?.let { super.setValue(it) }
+      }
+
       override fun setValue(value: V) {
         if (super.getValue() == value) return
         this@asLiveData.setValue(thisRef, property, value)
