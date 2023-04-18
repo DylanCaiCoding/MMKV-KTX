@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package com.dylanc.mmkv
 
 import android.content.Context
