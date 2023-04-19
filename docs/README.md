@@ -22,7 +22,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.14'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.15'
 }
 ```
 
@@ -81,7 +81,11 @@ MMKVOwner.default = MMKV.mmkvWithID("InterProcessKV", MMKV.MULTI_PROCESS_MODE)
 
 在老项目使用本库时需要避免多次初始化 MMKV，否则数据可能会有异常。
 
-### 区别存储
+### 重写 kv 对象
+
+有一些场景需要使用新的 MMKV 对象，此时可以重写 `kv` 属性。
+
+#### 区别存储
 
 比如我们在组件化项目进行开发，各自负责的模块是不知道别人用了什么 key 值，重名了可能被覆盖。这就可以重写 `kv` 属性创建不同的 `MMKV` 实例来规避这个问题。
 
@@ -89,11 +93,23 @@ MMKVOwner.default = MMKV.mmkvWithID("InterProcessKV", MMKV.MULTI_PROCESS_MODE)
 object UserRepository : MMKVOwner {
   // ...
   
-  override val kv = MMKV.mmkvWithID("user")
+  override val kv: MMKV = MMKV.mmkvWithID("user")
 }
 ```
 
-### 加密
+#### 多进程
+
+MMKV 默认是单进程模式，如果你需要多进程支持：
+
+```kotlin
+object DataRepository : MMKVOwner {
+  // ...
+
+  override val kv: MMKV = MMKV.mmkvWithID("InterProcessKV", MMKV.MULTI_PROCESS_MODE)
+}
+```
+
+#### 加密
 
 MMKV 默认明文存储所有 key-value，依赖 Android 系统的沙盒机制保证文件加密。如果你担心信息泄露，你可以选择加密 MMKV。
 
@@ -103,7 +119,7 @@ object DataRepository : MMKVOwner {
   
   private const val cryptKey = "My-Encrypt-Key"
   
-  override val kv = MMKV.mmkvWithID("MyID", MMKV.SINGLE_PROCESS_MODE, cryptKey)
+  override val kv: MMKV = MMKV.mmkvWithID("MyID", MMKV.SINGLE_PROCESS_MODE, cryptKey)
 }
 ```
 

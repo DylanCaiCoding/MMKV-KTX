@@ -28,7 +28,7 @@ Add dependencies in your module `build.gradle` :
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.14'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.15'
 }
 ```
 
@@ -62,6 +62,20 @@ You can get the `kv` object in the implementation class of `MMKVOwner` to delete
 ```kotlin
 kv.removeValueForKey(::user.name)
 kv.clearAll()
+```
+
+Starting from version 1.2.15, it supports delegating properties to LiveData using `mmkvXXXX().asLiveData()`. For example:
+
+```kotlin
+object SettingRepository : MMKVOwner {
+  val nightMode by mmkvBool().asLiveData()
+}
+
+SettingRepository.nightMode.observe(this) {
+  checkBox.isChecked = it
+}
+
+SettingRepository.nightMode.value = true
 ```
 
 See the [usage documentation](https://dylancaicoding.github.io/MMKV-KTX) for more advanced usage.

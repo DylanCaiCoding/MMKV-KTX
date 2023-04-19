@@ -28,7 +28,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.14'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.15'
 }
 ```
 
@@ -56,6 +56,27 @@ object DataRepository : MMKVOwner {
 | `mmkvStringSet()`  | /      |
 | `mmkvBytes()`      | /      |
 | `mmkvParcelable()` | /      |
+
+在 `MMKVOwner` 的实现类中可以获取 `kv` 对象进行删除值或清理缓存等操作，例如：
+
+```kotlin
+kv.removeValueForKey(::isFirstLaunch.name)
+kv.clearAll()
+```
+
+从 1.2.15 版本开始，支持使用 `mmkvXXXX().asLiveData()` 将属性委托给 `LiveData`，例如：
+
+```kotlin
+object SettingRepository : MMKVOwner {
+  val nightMode by mmkvBool().asLiveData()
+}
+
+SettingRepository.nightMode.observe(this) {
+  checkBox.isChecked = it
+}
+
+SettingRepository.nightMode.value = true
+```
 
 更多进阶用法请查看[使用文档](https://dylancaicoding.github.io/MMKV-KTX)。
 
