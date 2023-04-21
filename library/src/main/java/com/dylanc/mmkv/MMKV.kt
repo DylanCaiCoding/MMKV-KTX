@@ -17,9 +17,7 @@
 package com.dylanc.mmkv
 
 import android.os.Parcelable
-import androidx.lifecycle.MutableLiveData
 import com.tencent.mmkv.MMKV
-import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -29,19 +27,18 @@ import kotlin.reflect.KProperty
  *
  * ```kotlin
  * object DataRepository : MMKVOwner {
- *   override val kv = MMKV.mmkvWithID("MyID")
+ *   override val kv: MMKV = MMKV.mmkvWithID("MyID")
  * }
  * ```
  *
  * @author Dylan Cai
  */
 interface MMKVOwner {
-  val kv: MMKV
-    get() = default ?: throw IllegalStateException("If you use MMKV in Application, you should set MMKVOwner.default first.")
+  val kv: MMKV get() = default
 
   companion object {
     @JvmStatic
-    var default: MMKV? = null
+    var default: MMKV = MMKV.defaultMMKV()
   }
 }
 

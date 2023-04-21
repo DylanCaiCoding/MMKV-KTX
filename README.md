@@ -3,7 +3,7 @@
 English | [中文](README_ZH.md)
 
 [![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX) 
-[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/LoadingStateView/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/LICENSE)
 
 It's easier to use the [MMKV](https://github.com/Tencent/MMKV) without initializing the MMKV and defining the Key value.
 
@@ -57,14 +57,7 @@ The following types are supported：
 | `mmkvBytes()`      | /             |
 | `mmkvParcelable()` | /             |
 
-You can get the `kv` object in the implementation class of `MMKVOwner` to delete values or clear all, for example:
-
-```kotlin
-kv.removeValueForKey(::user.name)
-kv.clearAll()
-```
-
-Starting from version 1.2.15, it supports delegating properties to LiveData using `mmkvXXXX().asLiveData()`. For example:
+In version 1.2.15, the newly added `mmkvXXXX().asLiveData()` function delegates the property to `LiveData`, for example:
 
 ```kotlin
 object SettingRepository : MMKVOwner {
@@ -76,6 +69,13 @@ SettingRepository.nightMode.observe(this) {
 }
 
 SettingRepository.nightMode.value = true
+```
+
+You can get the `kv` object in the implementation class of `MMKVOwner` to delete values or clear all, for example:
+
+```kotlin
+kv.removeValueForKey(::user.name)
+kv.clearAll()
 ```
 
 See the [usage documentation](https://dylancaicoding.github.io/MMKV-KTX) for more advanced usage.

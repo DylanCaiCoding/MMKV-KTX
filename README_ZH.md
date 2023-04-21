@@ -3,7 +3,7 @@
 [English](README.md) | 中文
 
 [![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX) 
-[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/LoadingStateView/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/LICENSE)
 
 结合了 Kotlin 属性委托的特性，使得 [MMKV](https://github.com/Tencent/MMKV) 更加易用，无需初始化 MMKV，无需传 key 值。
 
@@ -57,14 +57,7 @@ object DataRepository : MMKVOwner {
 | `mmkvBytes()`      | /      |
 | `mmkvParcelable()` | /      |
 
-在 `MMKVOwner` 的实现类中可以获取 `kv` 对象进行删除值或清理缓存等操作，例如：
-
-```kotlin
-kv.removeValueForKey(::isFirstLaunch.name)
-kv.clearAll()
-```
-
-从 1.2.15 版本开始，支持使用 `mmkvXXXX().asLiveData()` 将属性委托给 `LiveData`，例如：
+1.2.15 版本新增 `mmkvXXXX().asLiveData()` 函数将属性委托给 `LiveData`，例如：
 
 ```kotlin
 object SettingRepository : MMKVOwner {
@@ -76,6 +69,13 @@ SettingRepository.nightMode.observe(this) {
 }
 
 SettingRepository.nightMode.value = true
+```
+
+在 `MMKVOwner` 的实现类中可以获取 `kv` 对象进行删除值或清理缓存等操作，例如：
+
+```kotlin
+kv.removeValueForKey(::isFirstLaunch.name)
+kv.clearAll()
 ```
 
 更多进阶用法请查看[使用文档](https://dylancaicoding.github.io/MMKV-KTX)。

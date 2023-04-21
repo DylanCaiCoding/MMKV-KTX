@@ -53,6 +53,20 @@ object DataRepository : MMKVOwner {
 | `mmkvBytes()`      | /      |
 | `mmkvParcelable()` | /      |
 
+1.2.15 版本新增 `mmkvXXXX().asLiveData()` 函数将属性委托给 `LiveData`，例如：
+
+```kotlin
+object SettingRepository : MMKVOwner {
+  val nightMode by mmkvBool().asLiveData()
+}
+
+SettingRepository.nightMode.observe(this) {
+  checkBox.isChecked = it
+}
+
+SettingRepository.nightMode.value = true
+```
+
 在 `MMKVOwner` 的实现类可以获取 `kv` 对象进行删除值或清理缓存等操作：
 
 ```kotlin
@@ -62,24 +76,31 @@ kv.clearAll()
 
 ## 进阶用法
 
-### 手动初始化 MMKV
+### 取消自动初始化
 
-在 Application 设置 `MMKVOwner.default` 即可取消默认的初始化操作。比如自定义文件保存的根目录：
+本库会自动调用 `MMKV.initialize(context)` 进行初始化，如果在用了 MMKV 的项目中使用本库，建议把自动初始化给取消了，多次初始化可能会导致数据异常。
 
-```kotlin
-val dir = filesDir.absolutePath + "/mmkv_2"
-MMKV.initialize(this, dir)
-MMKVOwner.default = MMKV.defaultMMKV()
+需要添加 App Startup 的依赖：
+
+```groovy
+implementation "androidx.startup:startup-runtime:1.1.0"
 ```
 
-或者需要修改默认的 MMKV 实例，比如业务需要支持多进程：
+然后在 `AndroidManifest.xml` 添加以下代码就能取消自动初始化操作：
 
-```kotlin
-MMKV.initialize(this)
-MMKVOwner.default = MMKV.mmkvWithID("InterProcessKV", MMKV.MULTI_PROCESS_MODE)
+```xml
+<application>
+  <provider
+    android:name="androidx.startup.InitializationProvider"
+    android:authorities="${applicationId}.androidx-startup"
+    android:exported="false"
+    tools:node="merge">
+    <meta-data
+      android:name="com.dylanc.mmkv.MMKVInitializer"
+      tools:node="remove" />
+  </provider>
+</application>
 ```
-
-在老项目使用本库时需要避免多次初始化 MMKV，否则数据可能会有异常。
 
 ### 重写 kv 对象
 

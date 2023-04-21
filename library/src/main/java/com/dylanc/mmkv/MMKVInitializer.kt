@@ -23,15 +23,34 @@ import androidx.startup.Initializer
 import com.tencent.mmkv.MMKV
 
 /**
+ * Initialize MMKV by App startup. You can cancel the automatic initialization of MMKV.
+ *
+ * **Step 1. Add startup's dependency in `build.gradle`:**
+ *
+ * ```
+ * implementation "androidx.startup:startup-runtime:1.1.0"
+ * ```
+ *
+ * **Step 2. Add the following code to `AndroidManifest.xml`:**
+ *
+ * ```xml
+ * <provider
+ *   android:name="androidx.startup.InitializationProvider"
+ *   android:authorities="${applicationId}.androidx-startup"
+ *   android:exported="false"
+ *   tools:node="merge">
+ *   <meta-data
+ *     android:name="com.dylanc.mmkv.MMKVInitializer"
+ *     tools:node="remove" />
+ * </provider>
+ * ```
+ *
  * @author Dylan Cai
  */
 class MMKVInitializer : Initializer<Unit> {
 
   override fun create(context: Context) {
-    if (MMKVOwner.default == null) {
-      MMKV.initialize(context)
-      MMKVOwner.default = MMKV.defaultMMKV()
-    }
+    MMKV.initialize(context)
   }
 
   override fun dependencies() = emptyList<Class<Initializer<*>>>()
