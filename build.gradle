@@ -16,7 +16,7 @@ buildscript {
         junitVersion = '4.13.2'
         lifecycleLivedataVersion = '2.3.1'
         materialVersion = '1.4.0'
-        mmkvVersion = '1.2.15'
+        mmkvVersion = '1.2.16'
         startupVersion = '1.1.0'
     }
     repositories {
