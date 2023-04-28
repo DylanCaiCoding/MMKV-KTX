@@ -17,80 +17,87 @@
 package com.dylanc.mmkv
 
 import android.os.Parcelable
+import androidx.lifecycle.MutableLiveData
 import com.tencent.mmkv.MMKV
+import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-/**
- * A class that has a MMKV instance. If you want to customize the MMKV, you can override
- * the kv property. For example:
- *
- * ```kotlin
- * object DataRepository : MMKVOwner {
- *   override val kv: MMKV = MMKV.mmkvWithID("MyID")
- * }
- * ```
- *
- * @author Dylan Cai
- */
-interface MMKVOwner {
-  val kv: MMKV get() = default
-
-  companion object {
-    @JvmStatic
-    var default: MMKV = MMKV.defaultMMKV()
-  }
+interface IMMKVOwner {
+  val mmapID: String
+  val kv: MMKV
 }
 
-fun MMKVOwner.mmkvInt(default: Int = 0) =
+open class MMKVOwner(override val mmapID: String) : IMMKVOwner {
+  override val kv: MMKV by lazy { MMKV.mmkvWithID(mmapID) }
+}
+
+fun IMMKVOwner.mmkvInt(default: Int = 0) =
   MMKVProperty({ kv.decodeInt(it, default) }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvLong(default: Long = 0L) =
+fun IMMKVOwner.mmkvLong(default: Long = 0L) =
   MMKVProperty({ kv.decodeLong(it, default) }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvBool(default: Boolean = false) =
+fun IMMKVOwner.mmkvBool(default: Boolean = false) =
   MMKVProperty({ kv.decodeBool(it, default) }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvFloat(default: Float = 0f) =
+fun IMMKVOwner.mmkvFloat(default: Float = 0f) =
   MMKVProperty({ kv.decodeFloat(it, default) }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvDouble(default: Double = 0.0) =
+fun IMMKVOwner.mmkvDouble(default: Double = 0.0) =
   MMKVProperty({ kv.decodeDouble(it, default) }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvString() =
+fun IMMKVOwner.mmkvString() =
   MMKVProperty({ kv.decodeString(it) }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvString(default: String) =
+fun IMMKVOwner.mmkvString(default: String) =
   MMKVProperty({ kv.decodeString(it) ?: default }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvStringSet() =
+fun IMMKVOwner.mmkvStringSet() =
   MMKVProperty({ kv.decodeStringSet(it) }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvStringSet(default: Set<String>) =
+fun IMMKVOwner.mmkvStringSet(default: Set<String>) =
   MMKVProperty({ kv.decodeStringSet(it) ?: default }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvBytes() =
+fun IMMKVOwner.mmkvBytes() =
   MMKVProperty({ kv.decodeBytes(it) }, { kv.encode(first, second) })
 
-fun MMKVOwner.mmkvBytes(default: ByteArray) =
+fun IMMKVOwner.mmkvBytes(default: ByteArray) =
   MMKVProperty({ kv.decodeBytes(it) ?: default }, { kv.encode(first, second) })
 
-inline fun <reified T : Parcelable> MMKVOwner.mmkvParcelable() =
+inline fun <reified T : Parcelable> IMMKVOwner.mmkvParcelable() =
   MMKVProperty({ kv.decodeParcelable(it, T::class.java) }, { kv.encode(first, second) })
 
-inline fun <reified T : Parcelable> MMKVOwner.mmkvParcelable(default: T) =
+inline fun <reified T : Parcelable> IMMKVOwner.mmkvParcelable(default: T) =
   MMKVProperty({ kv.decodeParcelable(it, T::class.java) ?: default }, { kv.encode(first, second) })
+
+fun <V> MMKVProperty<V>.asLiveData() = object : ReadOnlyProperty<IMMKVOwner, MutableLiveData<V>> {
+  private var cache: MutableLiveData<V>? = null
+
+  override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): MutableLiveData<V> =
+    cache ?: object : MutableLiveData<V>() {
+      override fun getValue() = this@asLiveData.getValue(thisRef, property)
+
+      override fun setValue(value: V) {
+        if (super.getValue() == value) return
+        this@asLiveData.setValue(thisRef, property, value)
+        super.setValue(value)
+      }
+
+      override fun onActive() = super.setValue(value)
+    }.also { cache = it }
+}
 
 class MMKVProperty<V>(
   private val decode: (String) -> V,
   private val encode: Pair<String, V>.() -> Boolean,
   var key: String? = null
-) : ReadWriteProperty<MMKVOwner, V> {
+) : ReadWriteProperty<IMMKVOwner, V> {
 
-  override fun getValue(thisRef: MMKVOwner, property: KProperty<*>): V =
+  override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): V =
     decode(key ?: property.name)
 
-  override fun setValue(thisRef: MMKVOwner, property: KProperty<*>, value: V) {
+  override fun setValue(thisRef: IMMKVOwner, property: KProperty<*>, value: V) {
     encode((key ?: property.name) to value)
   }
 }

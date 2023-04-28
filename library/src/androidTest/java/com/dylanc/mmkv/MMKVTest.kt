@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class MMKVTest : MMKVOwner {
+class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
 
   private var i1 by mmkvInt()
   private var i2 by mmkvInt(default = -1)
@@ -35,7 +35,7 @@ class MMKVTest : MMKVOwner {
   private var user1 by mmkvParcelable<User>()
   private var user2 by mmkvParcelable(default = User(0, "Admin"))
 
-  override val kv: MMKV = MMKV.mmkvWithID("repo")
+  override val kv: MMKV = MMKV.mmkvWithID(mmapID, MMKV.MULTI_PROCESS_MODE)
 
   @Before
   fun clear() {
