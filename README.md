@@ -2,96 +2,120 @@
 
 English | [中文](README_ZH.md)
 
-[![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX) 
+[![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/LICENSE)
 
-It's easier to use the [MMKV](https://github.com/Tencent/MMKV) without initializing the MMKV and defining the Key value.
+Combined with the features of Kotlin property delegation, it makes [MMKV](https://github.com/Tencent/MMKV) more flexible and easy to use.
+
+## Features
+
+- Automatic initialization of MMKV;
+- Use the property name as the key name, eliminating the need to declare a large number of key name constants;
+- Can ensure type safety and avoid exceptions caused by inconsistent types or key values;
 
 ## Usage
 
-:pencil: **[>> Usage documentation <<](https://dylancaicoding.github.io/MMKV-KTX)**
+:pencil: **[>> Usage Document <<](https://dylancaicoding.github.io/MMKV-KTX)**
 
-## Quick start
+## Get started
 
-Add it in your root `build.gradle` at the end of repositories:
+Add the following to the `build.gradle` file in the root directory:
 
 ```groovy
 allprojects {
     repositories {
-        // ...
+        //...
         maven { url 'https://www.jitpack.io' }
     }
 }
 ```
 
-Add dependencies in your module `build.gradle` :
+Add the dependency in the module's `build.gradle` file:
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.15'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.16'
 }
 ```
 
-Create a class to implement the `MMKVOwner` interface and delegate properties to `MMKV` with the `by mmkvXXXX()` method, for example:
+By having a class inherit from the `MMKVOwner` class, you can use the `by mmkvXXXX()` function to delegate properties to `MMKV`. For example:
 
 ```kotlin
-object DataRepository : MMKVOwner {
-  var isFirstLaunch by mmkvBool(default = true)
-  var user by mmkvParcelable<User>()
+object SettingsRepository : MMKVOwner(mmapID = "settings") {
+  var isNightMode by mmkvBool()
+  var language by mmkvString(default = "zh")
 }
 ```
 
-Setting or getting the value of the property calls the corresponding encode or decode method, and the key value is the property name.
-
-The following types are supported：
-
-| Method             | Default value |
-| ------------------ | ------------- |
-| `mmkvInt()`        | 0             |
-| `mmkvLong()`       | 0L            |
-| `mmkvBool()`       | false         |
-| `mmkvFloat()`      | 0f            |
-| `mmkvDouble()`     | 0.0           |
-| `mmkvString()`     | /             |
-| `mmkvStringSet()`  | /             |
-| `mmkvBytes()`      | /             |
-| `mmkvParcelable()` | /             |
-
-In version 1.2.15, the newly added `mmkvXXXX().asLiveData()` function delegates the property to `LiveData`, for example:
+If you already have a parent class that cannot be inherited from, implement `IMMKVOwner by MMKVOwner(mmapID)`, such as:
 
 ```kotlin
-object SettingRepository : MMKVOwner {
-  val nightMode by mmkvBool().asLiveData()
+object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "settings") {
+  // ...
+}
+```
+
+Make sure that each `mmapID` is unique to ensure type safety 100%!!!
+
+Setting or getting the value of a property will call the corresponding `encode()` or `decode()` function with the property name as the key name. For example:
+
+```kotlin
+if (SettingsRepository.isNightMode) {
+  // do some thing
 }
 
-SettingRepository.nightMode.observe(this) {
+SettingsRepository.isNightMode = true
+```
+
+Support the following types:
+
+| Function | Default value |
+| --------------------| ------ |
+| `mmkvInt()` | 0 |
+| `mmkvLong()` | 0L |
+| `mmkvBool()` | false |
+| `mmkvFloat()` | 0f |
+| `mmkvDouble()` | 0.0 |
+| `mmkvString()` | / |
+| `mmkvStringSet()` | / |
+| `mmkvBytes()` | / |
+| `mmkvParcelable()` | / |
+
+Support using the `mmkvXXXX().asLiveData()` function to delegate the property to `LiveData`, such as:
+
+```kotlin
+object SettingRepository : MMKVOwner(mmapID = "settings") {
+  val isNightMode by mmkvBool().asLiveData()
+}
+
+SettingRepository.isNightMode.observe(this) {
   checkBox.isChecked = it
 }
 
-SettingRepository.nightMode.value = true
+SettingRepository.isNightMode.value = true
 ```
 
-You can get the `kv` object in the implementation class of `MMKVOwner` to delete values or clear all, for example:
+The `kv` object can be used to delete values or clear the cache, for example:
 
 ```kotlin
-kv.removeValueForKey(::user.name)
+kv.removeValueForKey(::language.name) // Recommend removing the key after the default value is modified to shorten the assignment operation
 kv.clearAll()
 ```
 
-See the [usage documentation](https://dylancaicoding.github.io/MMKV-KTX) for more advanced usage.
+For more advanced usage, please refer to the [Usage Document](https://dylancaicoding.github.io/MMKV-KTX).
 
-## Change log
+## Update log
 
 [Releases](https://github.com/DylanCaiCoding/MMKV-KTX/releases)
 
-## Author's other libraries
+## Other libraries created by the author
 
-| Library                                                      | Description                                                  |
+| Library | Brief Introduction |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [Longan](https://github.com/DylanCaiCoding/Longan)           | Probably the best Kotlin utils library for Android.         |
-| [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | Decoupling the code of toolbar or loading status view.       |
-| [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | The most comprehensive utils of ViewBinding.                 |
-| [Tracker](https://github.com/DylanCaiCoding/Tracker)       | A lightweight tracking framework based on the tracking idea of Buzzvideo.|
+| [Longan](https://github.com/DylanCaiCoding/Longan) | Perhaps the most user-friendly Kotlin tool library |
+| [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | Deep decoupling of the default page of the title bar or loading, loading failure, no data, etc. |
+| [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | Most comprehensive ViewBinding tool |
+| [Tracker](https://github.com/DylanCaiCoding/Tracker) | Lightweight burrowing framework based on the chain of responsibility burrowing idea of Buzzvideo |
 
 ## License
 
@@ -102,7 +126,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,

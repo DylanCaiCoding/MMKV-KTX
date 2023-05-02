@@ -2,10 +2,16 @@
 
 [English](README.md) | 中文
 
-[![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX) 
+[![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/LICENSE)
 
-结合了 Kotlin 属性委托的特性，使得 [MMKV](https://github.com/Tencent/MMKV) 更加易用，无需初始化 MMKV，无需传 key 值。
+结合了 Kotlin 属性委托的特性，使得 [MMKV](https://github.com/Tencent/MMKV) 更加灵活易用。
+
+## Features
+
+- 自动初始化 MMKV ；
+- 用属性名作为键名，无需声明大量的键名常量；
+- 可以确保类型安全，避免类型或者 key 值不一致导致的异常；
 
 ## 用法
 
@@ -28,20 +34,38 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.15'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.16'
 }
 ```
 
-让一个类实现 `MMKVOwner` 接口，即可在该类使用 `by mmkvXXXX()` 函数将属性委托给 `MMKV`，例如：
+让一个类继承 `MMKVOwner` 类，即可在该类使用 `by mmkvXXXX()` 函数将属性委托给 `MMKV`，例如：
 
 ```kotlin
-object DataRepository : MMKVOwner {
-  var isFirstLaunch by mmkvBool(default = true)
-  var user by mmkvParcelable<User>()
+object SettingsRepository : MMKVOwner(mmapID = "settings") {
+  var isNightMode by mmkvBool()
+  var language by mmkvString(default = "zh")
 }
 ```
 
-设置或获取属性的值会调用对应的 encode() 或 decode() 函数，**用属性名作为 key 值**。
+如果已经有了父类继承不了，那就实现 `IMMKVOwner by MMKVOwner(mmapID)`，比如：
+
+```kotlin
+object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "settings") {
+  // ...
+}
+```
+
+**不管哪种都要确保每个 `mmapID` 不重复，只有这样才能 100% 确保类型安全！！！**
+
+设置或获取属性的值会调用对应的 encode() 或 decode() 函数，用属性名作为键名。比如：
+
+```kotlin
+if (SettingsRepository.isNightMode) {
+  // do some thing
+}
+
+SettingsRepository.isNightMode = true
+```
 
 支持以下类型：
 
@@ -57,24 +81,24 @@ object DataRepository : MMKVOwner {
 | `mmkvBytes()`      | /      |
 | `mmkvParcelable()` | /      |
 
-1.2.15 版本新增 `mmkvXXXX().asLiveData()` 函数将属性委托给 `LiveData`，例如：
+支持用 `mmkvXXXX().asLiveData()` 函数将属性委托给 `LiveData`，例如：
 
 ```kotlin
-object SettingRepository : MMKVOwner {
-  val nightMode by mmkvBool().asLiveData()
+object SettingRepository : MMKVOwner(mmapID = "settings") {
+  val isNightMode by mmkvBool().asLiveData()
 }
 
-SettingRepository.nightMode.observe(this) {
+SettingRepository.isNightMode.observe(this) {
   checkBox.isChecked = it
 }
 
-SettingRepository.nightMode.value = true
+SettingRepository.isNightMode.value = true
 ```
 
-在 `MMKVOwner` 的实现类中可以获取 `kv` 对象进行删除值或清理缓存等操作，例如：
+可以用 `kv` 对象进行删除值或清理缓存等操作，例如：
 
 ```kotlin
-kv.removeValueForKey(::isFirstLaunch.name)
+kv.removeValueForKey(::language.name) // 建议修改了默认值才移除 key，否则赋值操作更简洁
 kv.clearAll()
 ```
 
