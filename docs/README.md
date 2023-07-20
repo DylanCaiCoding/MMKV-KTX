@@ -5,6 +5,12 @@
 
 结合了 Kotlin 属性委托的特性，使得 [MMKV](https://github.com/Tencent/MMKV) 更加易用，无需初始化 MMKV，无需传 key 值。
 
+## Features
+
+- 自动初始化 MMKV ；
+- 用属性名作为键名，无需声明大量的键名常量；
+- 可以确保类型安全，避免类型或者键值不一致导致的异常；
+
 ## Gradle
 
 在根目录的 `build.gradle` 添加:
