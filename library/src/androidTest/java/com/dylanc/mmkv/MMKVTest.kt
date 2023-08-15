@@ -2,6 +2,7 @@ package com.dylanc.mmkv
 
 import android.os.Parcelable
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.internal.runner.junit4.statement.UiThreadStatement
 import com.tencent.mmkv.MMKV
 import kotlinx.parcelize.Parcelize
 import org.junit.Assert
@@ -12,7 +13,6 @@ import org.junit.runner.RunWith
 /**
  * @author Dylan Cai
  */
-
 @RunWith(AndroidJUnit4::class)
 class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
 
@@ -34,6 +34,8 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   private var bytes2 by mmkvBytes(default = byteArrayOf(0x1A))
   private var user1 by mmkvParcelable<User>()
   private var user2 by mmkvParcelable(default = User(0, "Admin"))
+  private val liveData1 by mmkvInt().asLiveData()
+  private val liveData2 by mmkvInt(default = -1).asLiveData()
 
   override val kv: MMKV = MMKV.mmkvWithID(mmapID, MMKV.MULTI_PROCESS_MODE)
 
@@ -173,6 +175,24 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
+  fun putLiveData1() {
+    UiThreadStatement.runOnUiThread {
+      Assert.assertEquals(0, liveData1.value)
+      liveData1.value = 6
+      Assert.assertEquals(6, liveData1.value)
+    }
+  }
+
+  @Test
+  fun putLiveData2() {
+    UiThreadStatement.runOnUiThread {
+      Assert.assertEquals(-1, liveData2.value)
+      liveData2.value = 6
+      Assert.assertEquals(6, liveData2.value)
+    }
+  }
+
+  @Test
   fun removeValue() {
     i1 = 6
     Assert.assertTrue(kv.containsKey(::i1.name))
@@ -189,6 +209,33 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
     kv.removeValuesForKeys(arrayOf(::s1.name, ::s2.name))
     Assert.assertFalse(kv.containsKey(::s1.name))
     Assert.assertFalse(kv.containsKey(::s2.name))
+  }
+
+  @Test
+  fun getAll() {
+    clearAllKV()
+    val allKV = allKV
+    Assert.assertTrue(allKV.size == 20)
+    Assert.assertEquals(0, allKV["i1"])
+    Assert.assertEquals(-1, allKV["i2"])
+    Assert.assertEquals(0L, allKV["l1"])
+    Assert.assertEquals(-1L, allKV["l2"])
+    Assert.assertEquals(false, allKV["b1"])
+    Assert.assertEquals(true, allKV["b2"])
+    Assert.assertEquals(0f, allKV["f1"])
+    Assert.assertEquals(-1f, allKV["f2"])
+    Assert.assertEquals(0.0, allKV["d1"])
+    Assert.assertEquals(-1.0, allKV["d2"])
+    Assert.assertEquals(null, allKV["s1"])
+    Assert.assertEquals("", allKV["s2"])
+    Assert.assertEquals(null, allKV["set1"])
+    Assert.assertEquals(emptySet<String>(), allKV["set2"])
+    Assert.assertEquals(null, allKV["bytes1"])
+    Assert.assertTrue(byteArrayOf(0x1A).contentEquals(allKV["bytes2"] as? ByteArray))
+    Assert.assertEquals(null, allKV["user1"])
+    Assert.assertEquals(User(0, "Admin"), allKV["user2"])
+    Assert.assertEquals(0, allKV["liveData1"])
+    Assert.assertEquals(-1, allKV["liveData2"])
   }
 
   @Parcelize

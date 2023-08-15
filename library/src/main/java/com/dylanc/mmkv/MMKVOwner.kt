@@ -22,10 +22,14 @@ import com.tencent.mmkv.MMKV
 import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMembers
+import kotlin.reflect.jvm.isAccessible
 
 interface IMMKVOwner {
   val mmapID: String
   val kv: MMKV
+  fun clearAllKV() = kv.clearAll()
 }
 
 open class MMKVOwner(override val mmapID: String) : IMMKVOwner {
@@ -88,16 +92,34 @@ fun <V> MMKVProperty<V>.asLiveData() = object : ReadOnlyProperty<IMMKVOwner, Mut
     }.also { cache = it }
 }
 
+val IMMKVOwner.allKV: Map<String, Any?>
+  get() = HashMap<String, Any?>().also { map ->
+    this::class.declaredMembers.filerProperties<KProperty1<IMMKVOwner, *>>("kv", "mmapID")
+      .forEach { property ->
+        property.isAccessible = true
+        val value = property.get(this)
+        if (value is MutableLiveData<*>) {
+          map[property.name] = value.value
+        } else {
+          map[property.name] = value
+        }
+        property.isAccessible = false
+      }
+  }
+
+inline fun <reified R : KProperty1<*, *>> Collection<*>.filerProperties(vararg exceptNames: String): List<R> =
+  ArrayList<R>().also { destination ->
+    for (element in this) if (element is R && !exceptNames.contains(element.name)) destination.add(element)
+  }
+
 class MMKVProperty<V>(
   private val decode: (String) -> V,
-  private val encode: Pair<String, V>.() -> Boolean,
-  var key: String? = null
+  private val encode: Pair<String, V>.() -> Boolean
 ) : ReadWriteProperty<IMMKVOwner, V> {
-
   override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): V =
-    decode(key ?: property.name)
+    decode(property.name)
 
   override fun setValue(thisRef: IMMKVOwner, property: KProperty<*>, value: V) {
-    encode((key ?: property.name) to value)
+    encode((property.name) to value)
   }
 }
