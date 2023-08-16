@@ -11,12 +11,12 @@ buildscript {
         constraintLayoutVersion = '2.1.1'
         coreVersion = '1.7.0-alpha01'
         espressoVersion = '3.4.0'
-        kotlinVersion = "1.7.10"
+        kotlinVersion = "1.8.0"
         junitExtVersion = '1.1.3'
         junitVersion = '4.13.2'
         lifecycleLivedataVersion = '2.3.1'
         materialVersion = '1.4.0'
-        mmkvVersion = '1.2.16'
+        mmkvVersion = '1.3.1'
         startupVersion = '1.1.0'
     }
     repositories {
