@@ -19,30 +19,25 @@
 package com.dylanc.mmkv
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.pm.PackageManager.GET_META_DATA
 import androidx.startup.Initializer
 import com.tencent.mmkv.MMKV
+import com.tencent.mmkv.MMKVLogLevel
 
 /**
  * Initialize MMKV by App startup. You can cancel the automatic initialization of MMKV.
- *
- * **Step 1. Add startup's dependency in `build.gradle`:**
- *
- * ```
- * implementation "androidx.startup:startup-runtime:1.1.0"
- * ```
- *
- * **Step 2. Add the following code to `AndroidManifest.xml`:**
+ * If you want to change root directory or log level, you can add the following code to
+ * the AndroidManifest.xml:
  *
  * ```xml
- * <provider
- *   android:name="androidx.startup.InitializationProvider"
- *   android:authorities="${applicationId}.androidx-startup"
- *   android:exported="false"
- *   tools:node="merge">
- *   <meta-data
- *     android:name="com.dylanc.mmkv.MMKVInitializer"
- *     tools:node="remove" />
- * </provider>
+ * <meta-data
+ *   android:name="mmkv_root_dir"
+ *   android:value="/mmkv_2" />
+ *
+ * <meta-data
+ *   android:name="mmkv_log_level"
+ *   android:value="debug" />
  * ```
  *
  * @author Dylan Cai
@@ -50,8 +45,26 @@ import com.tencent.mmkv.MMKV
 class MMKVInitializer : Initializer<Unit> {
 
   override fun create(context: Context) {
-    MMKV.initialize(context)
+    val rootDir = context.filesDir.absolutePath + (getMetaData(context, "mmkv_root_dir") ?: "/mmkv")
+    val logLevel = when (getMetaData(context, "mmkv_log_level")?.lowercase()) {
+      "debug" -> MMKVLogLevel.LevelDebug
+      "info" -> MMKVLogLevel.LevelInfo
+      "warning" -> MMKVLogLevel.LevelWarning
+      "error" -> MMKVLogLevel.LevelError
+      "none" -> MMKVLogLevel.LevelNone
+      else -> MMKVLogLevel.LevelInfo
+    }
+    MMKV.initialize(context, rootDir, logLevel)
   }
+
+  private fun getMetaData(context: Context, key: String): String? =
+    try {
+      context.packageManager.getApplicationInfo(context.packageName, GET_META_DATA)
+        .metaData?.getString(key)
+    } catch (e: PackageManager.NameNotFoundException) {
+      e.printStackTrace()
+      null
+    }
 
   override fun dependencies() = emptyList<Class<Initializer<*>>>()
 }
