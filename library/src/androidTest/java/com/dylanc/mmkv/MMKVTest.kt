@@ -36,6 +36,10 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   private var user2 by mmkvParcelable(default = User(0, "Admin"))
   private val liveData1 by mmkvInt().asLiveData()
   private val liveData2 by mmkvInt(default = -1).asLiveData()
+  private val flow1 by mmkvInt().asFlow()
+  private val flow2 by mmkvInt(default = -1).asFlow()
+  private val map1 by mmkvInt().asMap()
+  private val map2 by mmkvInt(-1).asMap()
 
   override val kv: MMKV = MMKV.mmkvWithID(mmapID, MMKV.MULTI_PROCESS_MODE)
 
@@ -180,6 +184,8 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
       Assert.assertEquals(0, liveData1.value)
       liveData1.value = 6
       Assert.assertEquals(6, liveData1.value)
+      clearAllKV()
+      Assert.assertEquals(0, liveData1.value)
     }
   }
 
@@ -189,7 +195,92 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
       Assert.assertEquals(-1, liveData2.value)
       liveData2.value = 6
       Assert.assertEquals(6, liveData2.value)
+      clearAllKV()
+      Assert.assertEquals(-1, liveData2.value)
     }
+  }
+
+  @Test
+  fun putFlow1() {
+    Assert.assertEquals(0, flow1.value)
+    flow1.value = 6
+    Assert.assertEquals(6, flow1.value)
+    clearAllKV()
+    Assert.assertEquals(0, flow1.value)
+  }
+
+  @Test
+  fun putFlow2() {
+    Assert.assertEquals(-1, flow2.value)
+    flow2.value = 6
+    Assert.assertEquals(6, flow2.value)
+    clearAllKV()
+    Assert.assertEquals(-1, flow2.value)
+  }
+
+  @Test
+  fun putMapData1() {
+    Assert.assertEquals(0, map1["id1"])
+    Assert.assertEquals(0, map1["id2"])
+    map1["id1"] = 1
+    map1["id2"] = 2
+    Assert.assertEquals(1, map1["id1"])
+    Assert.assertEquals(2, map1["id2"])
+    map1.clear()
+    Assert.assertEquals(0, map1["id1"])
+    Assert.assertEquals(0, map1["id2"])
+    map1["id1"] = 3
+    map1["id2"] = 4
+    clearAllKV()
+    Assert.assertEquals(0, map1["id1"])
+    Assert.assertEquals(0, map1["id2"])
+  }
+
+  @Test
+  fun putMapData2() {
+    Assert.assertEquals(-1, map2["id1"])
+    Assert.assertEquals(-1, map2["id2"])
+    map2["id1"] = 1
+    map2["id2"] = 2
+    Assert.assertEquals(1, map2["id1"])
+    Assert.assertEquals(2, map2["id2"])
+    map2.clear()
+    Assert.assertEquals(-1, map2["id1"])
+    Assert.assertEquals(-1, map2["id2"])
+    map2["id1"] = 3
+    map2["id2"] = 4
+    Assert.assertEquals(3, map2["id1"])
+    Assert.assertEquals(4, map2["id2"])
+    clearAllKV()
+    Assert.assertEquals(-1, map2["id1"])
+    Assert.assertEquals(-1, map2["id2"])
+    Assert.assertEquals(0, map2.size)
+  }
+
+  @Test
+  fun removeValueForKey() {
+    map1["id1"] = 1
+    map1["id2"] = 2
+    Assert.assertEquals(1, map1["id1"])
+    Assert.assertEquals(2, map1["id2"])
+    val iterator = map1.entries.iterator()
+    while (iterator.hasNext()) {
+      val entry = iterator.next()
+      if (entry.key == "id1") {
+        iterator.remove()
+      }
+    }
+    Assert.assertEquals(0, map1["id1"])
+    Assert.assertEquals(2, map1["id2"])
+    Assert.assertEquals(1, map1.size)
+
+    map1.entries.removeIf { it.key == "id2" }
+    Assert.assertEquals(0, map1["id2"])
+    Assert.assertEquals(0, map1.size)
+
+    map1["merge"] = 1
+    map1.merge("merge", 2) { oldValue, newValue -> oldValue + newValue }
+    Assert.assertEquals(3, map1["merge"])
   }
 
   @Test
@@ -214,8 +305,11 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   @Test
   fun getAll() {
     clearAllKV()
+    map1["id1"] = 1
+    map1["id2"] = 2
+    Assert.assertEquals(setOf("id1", "id2"), map1.keys)
     val allKV = allKV
-    Assert.assertTrue(allKV.size == 20)
+    Assert.assertTrue(allKV.size == 24)
     Assert.assertEquals(0, allKV["i1"])
     Assert.assertEquals(-1, allKV["i2"])
     Assert.assertEquals(0L, allKV["l1"])
@@ -236,6 +330,10 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
     Assert.assertEquals(User(0, "Admin"), allKV["user2"])
     Assert.assertEquals(0, allKV["liveData1"])
     Assert.assertEquals(-1, allKV["liveData2"])
+    Assert.assertEquals(0, allKV["flow1"])
+    Assert.assertEquals(-1, allKV["flow2"])
+    Assert.assertEquals(mapOf("id1" to 1, "id2" to 2), allKV["map1"])
+    Assert.assertEquals(emptyMap<String, Int>(), allKV["map2"])
   }
 
   @Parcelize
