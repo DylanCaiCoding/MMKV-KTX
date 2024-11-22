@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "30.0.3"
+    namespace "com.dylanc.mmkv.sample"
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.dylanc.mmkv.sample"
-        minSdkVersion 16
-        targetSdkVersion 31
+        minSdkVersion 23
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
 
@@ -29,6 +29,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
     }
 }
 
