@@ -36,8 +36,8 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   private var user2 by mmkvParcelable(default = User(0, "Admin"))
   private val liveData1 by mmkvInt().asLiveData()
   private val liveData2 by mmkvInt(default = -1).asLiveData()
-  private val flow1 by mmkvInt().asFlow()
-  private val flow2 by mmkvInt(default = -1).asFlow()
+  private val flow1 by mmkvInt().asStateFlow()
+  private val flow2 by mmkvInt(default = -1).asStateFlow()
   private val map1 by mmkvInt().asMap()
   private val map2 by mmkvInt(-1).asMap()
 
