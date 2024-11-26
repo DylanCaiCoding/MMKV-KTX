@@ -18,10 +18,10 @@ package com.dylanc.mmkv
 
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
-import com.dylanc.mmkv.property.MMKVStateFlowProperty
 import com.dylanc.mmkv.property.MMKVLiveDataProperty
 import com.dylanc.mmkv.property.MMKVMapProperty
 import com.dylanc.mmkv.property.MMKVProperty
+import com.dylanc.mmkv.property.MMKVStateFlowProperty
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.reflect.KProperty1
@@ -86,22 +86,18 @@ inline fun <reified T : Parcelable> IMMKVOwner.mmkvParcelable(default: T) =
   MMKVProperty({ kv.decodeParcelable(it, T::class.java) ?: default }, { kv.encode(first, second) })
 
 val IMMKVOwner.allKV: Map<String, Any?>
-  get() = HashMap<String, Any?>().also { map ->
-    this::class.declaredMembers.filerProperties<KProperty1<IMMKVOwner, *>>(exceptNames = arrayOf("kv", "mmapID"))
+  get() = buildMap {
+    val excludeNames = listOf("kv", "mmapID")
+    this@allKV::class.declaredMembers.asSequence()
+      .filterIsInstance<KProperty1<IMMKVOwner, *>>()
+      .filter { it.name !in excludeNames }
       .forEach { property ->
         property.isAccessible = true
-        map[property.name] = when (val value = property.get(this@allKV)) {
+        this[property.name] = when (val value = property.get(this@allKV)) {
           is LiveData<*> -> value.value
           is StateFlow<*> -> value.value
           else -> value
         }
         property.isAccessible = false
       }
-  }
-
-inline fun <reified R : KProperty1<*, *>> Collection<*>.filerProperties(vararg exceptNames: String): List<R> =
-  buildList {
-    this@filerProperties.forEach { element ->
-      if (element is R && !exceptNames.contains(element.name)) add(element)
-    }
   }
