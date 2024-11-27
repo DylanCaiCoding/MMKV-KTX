@@ -25,7 +25,7 @@ import com.dylanc.mmkv.property.MMKVStateFlowProperty
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.declaredMembers
+import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 
 open class MMKVOwner(override val mmapID: String) : IMMKVOwner {
@@ -85,19 +85,20 @@ inline fun <reified T : Parcelable> IMMKVOwner.mmkvParcelable() =
 inline fun <reified T : Parcelable> IMMKVOwner.mmkvParcelable(default: T) =
   MMKVProperty({ kv.decodeParcelable(it, T::class.java) ?: default }, { kv.encode(first, second) })
 
-val IMMKVOwner.allKV: Map<String, Any?>
-  get() = buildMap {
-    val excludeNames = listOf("kv", "mmapID")
-    this@allKV::class.declaredMembers.asSequence()
-      .filterIsInstance<KProperty1<IMMKVOwner, *>>()
-      .filter { it.name !in excludeNames }
-      .forEach { property ->
-        property.isAccessible = true
-        this[property.name] = when (val value = property.get(this@allKV)) {
+fun IMMKVOwner.getAllKV(): Map<String, Any?> = buildMap {
+  val types = arrayOf(MMKVProperty::class, MMKVLiveDataProperty::class, MMKVStateFlowProperty::class, MMKVMapProperty::class)
+  this@getAllKV::class.memberProperties
+    .filterIsInstance<KProperty1<IMMKVOwner, *>>()
+    .forEach { property ->
+      property.isAccessible = true
+      val delegate = property.getDelegate(this@getAllKV)
+      if (types.any { it.isInstance(delegate) }) {
+        this[property.name] = when (val value = property.get(this@getAllKV)) {
           is LiveData<*> -> value.value
           is StateFlow<*> -> value.value
           else -> value
         }
-        property.isAccessible = false
       }
-  }
+      property.isAccessible = false
+    }
+}

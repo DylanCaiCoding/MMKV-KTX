@@ -9,6 +9,8 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 /**
  * @author Dylan Cai
@@ -42,6 +44,17 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   private val map2 by mmkvInt(-1).asMap()
 
   override val kv: MMKV = MMKV.mmkvWithID(mmapID, MMKV.MULTI_PROCESS_MODE)
+
+//  private val test by TestProperty()
+
+  class TestProperty: ReadWriteProperty<Any, Int> {
+    override fun getValue(thisRef: Any, property: KProperty<*>): Int {
+      return 1
+    }
+
+    override fun setValue(thisRef: Any, property: KProperty<*>, value: Int) {
+    }
+  }
 
   @Before
   fun clear() {
@@ -308,8 +321,8 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
     map1["id1"] = 1
     map1["id2"] = 2
     Assert.assertEquals(setOf("id1", "id2"), map1.keys)
-    val allKV = allKV
-    Assert.assertTrue(allKV.size == 24)
+    val allKV = getAllKV()
+    Assert.assertEquals(24, allKV.size)
     Assert.assertEquals(0, allKV["i1"])
     Assert.assertEquals(-1, allKV["i2"])
     Assert.assertEquals(0L, allKV["l1"])
