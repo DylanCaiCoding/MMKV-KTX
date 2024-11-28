@@ -34,7 +34,7 @@ Add the dependency in the module's `build.gradle` file:
 
 ```groovy
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.16'
+    implementation 'com.github.DylanCaiCoding:MMKV-KTX:2.0.1'
 }
 ```
 
@@ -69,17 +69,55 @@ SettingsRepository.isNightMode = true
 
 Support the following types:
 
-| Function | Default value |
-| --------------------| ------ |
-| `mmkvInt()` | 0 |
-| `mmkvLong()` | 0L |
-| `mmkvBool()` | false |
-| `mmkvFloat()` | 0f |
-| `mmkvDouble()` | 0.0 |
-| `mmkvString()` | / |
-| `mmkvStringSet()` | / |
-| `mmkvBytes()` | / |
-| `mmkvParcelable()` | / |
+| Type         | Function           | Default value |
+| ------------ | ------------------ | ------------- |
+| `Int`        | `mmkvInt()`        | 0             |
+| `Long`       | `mmkvLong()`       | 0L            |
+| `Boolean`    | `mmkvBool()`       | false         |
+| `Float`      | `mmkvFloat()`      | 0f            |
+| `Double`     | `mmkvDouble()`     | 0.0           |
+| `String`     | `mmkvString()`     | /             |
+| `StringSet`  | `mmkvStringSet()`  | /             |
+| `ByteArray`  | `mmkvBytes()`      | /             |
+| `Parcelable` | `mmkvParcelable()` | /             |
+
+| Type                          | Function                        | Default value |
+| ----------------------------- | ------------------------------- | ------------- |
+| `MutableLiveData<Int>`        | `mmkvInt().asLiveData()`        | 0             |
+| `MutableLiveData<Long>`       | `mmkvLong().asLiveData()`       | 0L            |
+| `MutableLiveData<Boolean>`    | `mmkvBool().asLiveData()`       | false         |
+| `MutableLiveData<Float>`      | `mmkvFloat().asLiveData()`      | 0f            |
+| `MutableLiveData<Double>`     | `mmkvDouble.asLiveData()        | 0.0           |
+| `MutableLiveData<String>`     | `mmkvString().asLiveData()`     | /             |
+| `MutableLiveData<StringSet>`  | `mmkvStringSet().asLiveData()`  | /             |
+| `MutableLiveData<ByteArray>`  | `mmkvBytes().asLiveData()`      | /             |
+| `MutableLiveData<Parcelable>` | `mmkvParcelable().asLiveData()` | /             |
+
+| Type                           | Function                         | Default value |
+| ------------------------------ | -------------------------------- | ------------- |
+| `MutableStateFlow<Int>`        | `mmkvInt().asStateFlow()`        | 0             |
+| `MutableStateFlow<Long>`       | `mmkvLong().asStateFlow()`       | 0L            |
+| `MutableStateFlow<Boolean>`    | `mmkvBool().asStateFlow()`       | false         |
+| `MutableStateFlow<Float>`      | `mmkvFloat().asStateFlow()`      | 0f            |
+| `MutableStateFlow<Double>`     | `mmkvDouble().asStateFlow()`     | 0.0           |
+| `MutableStateFlow<String>`     | `mmkvString().asStateFlow()`     | /             |
+| `MutableStateFlow<StringSet>`  | `mmkvStringSet().asStateFlow()`  | /             |
+| `MutableStateFlow<ByteArray>`  | `mmkvBytes().asStateFlow()`      | /             |
+| `MutableStateFlow<Parcelable>` | `mmkvParcelable().asStateFlow()` | /             |
+
+| Type                             | Function                   | Default value |
+| -------------------------------- | -------------------------- | ------------- |
+| `MutableMap<String, Int>`        | `mmkvInt().asMap()`        | 0             |
+| `MutableMap<String, Long>`       | `mmkvLong().asMap()`       | 0L            |
+| `MutableMap<String, Boolean>`    | `mmkvBool().asMap()`       | false         |
+| `MutableMap<String, Float>`      | `mmkvFloat().asMap()`      | 0f            |
+| `MutableMap<String, Double>`     | `mmkvDouble().asMap()`     | 0.0           |
+| `MutableMap<String, String>`     | `mmkvString().asMap()`     | /             |
+| `MutableMap<String, StringSet>`  | `mmkvStringSet().asMap()`  | /             |
+| `MutableMap<String, ByteArray>`  | `mmkvBytes().asMap()`      | /             |
+| `MutableMap<String, Parcelable>` | `mmkvParcelable().asMap()` | /             |
+
+
 
 Support using the `mmkvXXXX().asLiveData()` function to delegate the property to `LiveData`, such as:
 
