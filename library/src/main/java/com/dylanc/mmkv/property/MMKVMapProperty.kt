@@ -71,11 +71,13 @@ class MMKVMap<V>(
 
   @RequiresApi(Build.VERSION_CODES.N)
   override fun putIfAbsent(key: String, value: V): V? {
-    if (map.containsKey(key).not()) {
-      encode(key.addPrefix() to value)
-      kv.encode(keysName, keys + key)
+    val isAbsent = map.containsKey(key).not()
+    return map.putIfAbsent(key, value).also {
+      if (isAbsent) {
+        encode(key.addPrefix() to value)
+        kv.encode(keysName, keys + key)
+      }
     }
-    return map.putIfAbsent(key, value)
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
