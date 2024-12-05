@@ -5,13 +5,16 @@ English | [中文](README_ZH.md)
 [![](https://www.jitpack.io/v/DylanCaiCoding/MMKV-KTX.svg)](https://www.jitpack.io/#DylanCaiCoding/MMKV-KTX)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/DylanCaiCoding/MMKV-KTX/blob/master/LICENSE)
 
-Combined with the features of Kotlin property delegation, it makes [MMKV](https://github.com/Tencent/MMKV) more flexible and easy to use.
+Combined with the features of Kotlin property delegation makes [MMKV](https://github.com/Tencent/MMKV) more flexible and easy to use.
 
 ## Features
 
-- Automatic initialization of MMKV;
-- Use the property name as the key name, eliminating the need to declare a large number of key name constants;
-- Can ensure type safety and avoid exceptions caused by inconsistent types or key values;
+- Automatically initializes MMKV;
+- Uses property names as keys, eliminating the need to declare numerous key constants;
+- Ensures type safety, avoiding exceptions caused by type or key mismatches;
+- Supports conversion to `LiveData` and `StateFlow` for usage;
+- Supports conversion to Map, allowing data to be saved based on different ids;
+- Supports `getAllKV()`, providing the possibility for data migration.
 
 ## Usage
 
@@ -19,22 +22,35 @@ Combined with the features of Kotlin property delegation, it makes [MMKV](https:
 
 ## Get started
 
-Add the following to the `build.gradle` file in the root directory:
+Add the following to the end of the repositories section in `settings.gradle`:
 
 ```groovy
-allprojects {
-    repositories {
-        //...
-        maven { url 'https://www.jitpack.io' }
-    }
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+  }
 }
 ```
 
-Add the dependency in the module's `build.gradle` file:
+Or add the following to the end of the repositories section in `settings.gradle.ktx`:
 
-```groovy
+```kotlin
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+  }
+}
+```
+
+Add the dependency:
+
+```kotlin
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:2.0.1'
+    implementation("com.github.DylanCaiCoding:MMKV-KTX:2.0.1")
 }
 ```
 
@@ -47,7 +63,7 @@ object SettingsRepository : MMKVOwner(mmapID = "settings") {
 }
 ```
 
-If you already have a parent class that cannot be inherited from, implement `IMMKVOwner by MMKVOwner(mmapID)`, such as:
+If there is already a parent class that cannot be inherited, implement `IMMKVOwner by MMKVOwner(mmapID)`, like this:
 
 ```kotlin
 object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "settings") {
@@ -55,17 +71,9 @@ object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "
 }
 ```
 
-Make sure that each `mmapID` is unique to ensure type safety 100%!!!
+**Make sure that each mmapID is unique to 100% ensure type safety!!!**
 
-Setting or getting the value of a property will call the corresponding `encode()` or `decode()` function with the property name as the key name. For example:
-
-```kotlin
-if (SettingsRepository.isNightMode) {
-  // do some thing
-}
-
-SettingsRepository.isNightMode = true
-```
+Setting or getting the property values will call the corresponding `encode()` or `decode()` functions, with the property name used as the key.
 
 Support the following types:
 
@@ -77,7 +85,7 @@ Support the following types:
 | `Float`      | `mmkvFloat()`      | 0f            |
 | `Double`     | `mmkvDouble()`     | 0.0           |
 | `String`     | `mmkvString()`     | /             |
-| `StringSet`  | `mmkvStringSet()`  | /             |
+| `Set<String>`| `mmkvStringSet()`  | /             |
 | `ByteArray`  | `mmkvBytes()`      | /             |
 | `Parcelable` | `mmkvParcelable()` | /             |
 
@@ -87,9 +95,9 @@ Support the following types:
 | `MutableLiveData<Long>`       | `mmkvLong().asLiveData()`       | 0L            |
 | `MutableLiveData<Boolean>`    | `mmkvBool().asLiveData()`       | false         |
 | `MutableLiveData<Float>`      | `mmkvFloat().asLiveData()`      | 0f            |
-| `MutableLiveData<Double>`     | `mmkvDouble.asLiveData()        | 0.0           |
+| `MutableLiveData<Double>`     | `mmkvDouble.asLiveData()`       | 0.0           |
 | `MutableLiveData<String>`     | `mmkvString().asLiveData()`     | /             |
-| `MutableLiveData<StringSet>`  | `mmkvStringSet().asLiveData()`  | /             |
+| `MutableLiveData<Set<String>>`| `mmkvStringSet().asLiveData()`  | /             |
 | `MutableLiveData<ByteArray>`  | `mmkvBytes().asLiveData()`      | /             |
 | `MutableLiveData<Parcelable>` | `mmkvParcelable().asLiveData()` | /             |
 
@@ -101,7 +109,7 @@ Support the following types:
 | `MutableStateFlow<Float>`      | `mmkvFloat().asStateFlow()`      | 0f            |
 | `MutableStateFlow<Double>`     | `mmkvDouble().asStateFlow()`     | 0.0           |
 | `MutableStateFlow<String>`     | `mmkvString().asStateFlow()`     | /             |
-| `MutableStateFlow<StringSet>`  | `mmkvStringSet().asStateFlow()`  | /             |
+| `MutableStateFlow<Set<String>>`| `mmkvStringSet().asStateFlow()`  | /             |
 | `MutableStateFlow<ByteArray>`  | `mmkvBytes().asStateFlow()`      | /             |
 | `MutableStateFlow<Parcelable>` | `mmkvParcelable().asStateFlow()` | /             |
 
@@ -113,32 +121,9 @@ Support the following types:
 | `MutableMap<String, Float>`      | `mmkvFloat().asMap()`      | 0f            |
 | `MutableMap<String, Double>`     | `mmkvDouble().asMap()`     | 0.0           |
 | `MutableMap<String, String>`     | `mmkvString().asMap()`     | /             |
-| `MutableMap<String, StringSet>`  | `mmkvStringSet().asMap()`  | /             |
+| `MutableMap<String, Set<String>>`| `mmkvStringSet().asMap()`  | /             |
 | `MutableMap<String, ByteArray>`  | `mmkvBytes().asMap()`      | /             |
 | `MutableMap<String, Parcelable>` | `mmkvParcelable().asMap()` | /             |
-
-
-
-Support using the `mmkvXXXX().asLiveData()` function to delegate the property to `LiveData`, such as:
-
-```kotlin
-object SettingRepository : MMKVOwner(mmapID = "settings") {
-  val isNightMode by mmkvBool().asLiveData()
-}
-
-SettingRepository.isNightMode.observe(this) {
-  checkBox.isChecked = it
-}
-
-SettingRepository.isNightMode.value = true
-```
-
-The `kv` object can be used to delete values or clear the cache, for example:
-
-```kotlin
-kv.removeValueForKey(::language.name) // Recommend removing the key after the default value is modified to shorten the assignment operation
-kv.clearAll()
-```
 
 For more advanced usage, please refer to the [Usage Document](https://dylancaicoding.github.io/MMKV-KTX).
 
