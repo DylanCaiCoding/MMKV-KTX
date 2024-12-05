@@ -34,6 +34,7 @@ android {
 
 dependencies {
     api "com.tencent:mmkv-static:$mmkvVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinVersion"
     implementation "androidx.startup:startup-runtime:$startupVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-core-ktx:$lifecycleLivedataVersion"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
