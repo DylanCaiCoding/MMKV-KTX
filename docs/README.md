@@ -7,32 +7,47 @@
 
 ## Features
 
-- 自动初始化 MMKV ；
-- 用属性名作为键名，无需声明大量的键名常量；
-- 可以确保类型安全，避免类型或者键值不一致导致的异常；
+-   自动初始化 MMKV ；
+-   用属性名作为键名，无需声明大量的键名常量；
+-   可以确保类型安全，避免类型或者键名不一致导致的异常；
+-   支持转换成 `LiveData` 和 `StateFlow` 来使用；
+-   支持转换成 `Map`，可以根据不同的 `id` 来保存数据；
+-   支持 `getAllKV()`，为数据迁移提供了可能性；
 
-## Gradle
-
-在根目录的 `build.gradle` 添加:
-
+## 快速入门
+    
+    
+在 `settings.gradle` 文件的 `repositories` 结尾处添加：
+    
 ```groovy
-allprojects {
-    repositories {
-        //...
-        maven { url 'https://www.jitpack.io' }
-    }
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    mavenCentral()
+    maven { url 'https://www.jitpack.io' }
+  }
 }
 ```
-
-在模块的 `build.gradle` 添加依赖：
-
-```groovy
+    
+或者在 `settings.gradle.ktx` 文件的 `repositories` 结尾处添加：
+    
+```kotlin
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+  }
+}
+```
+    
+添加依赖：
+    
+```kotlin
 dependencies {
-    implementation 'com.github.DylanCaiCoding:MMKV-KTX:1.2.16'
+  implementation("com.github.DylanCaiCoding:MMKV-KTX:2.0.1")
 }
 ```
-
-## 基础用法
 
 让一个类继承 `MMKVOwner` 类，即可在该类使用 `by mmkvXXXX()` 函数将属性委托给 `MMKV`，例如：
 
@@ -51,79 +66,76 @@ object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "
 }
 ```
 
-**不管哪种都要确保每个 `mmapID` 不重复，只有这样才能 100% 确保类型安全！！！**
+**要确保每个 `mmapID` 不重复，只有这样才能 100% 确保类型安全！！！**
 
-设置或获取属性的值会调用对应的 encode() 或 decode() 函数，用属性名作为 key 值。比如：
-
-```kotlin
-if (SettingsRepository.isNightMode) {
-  // do some thing
-}
-
-SettingsRepository.isNightMode = true
-```
+设置或获取属性的值会调用对应的 encode() 或 decode() 函数，用属性名作为键名。
 
 支持以下类型：
 
-| 函数               | 默认值 |
-| ------------------ | ------ |
-| `mmkvInt()`        | 0      |
-| `mmkvLong()`       | 0L     |
-| `mmkvBool()`       | false  |
-| `mmkvFloat()`      | 0f     |
-| `mmkvDouble()`     | 0.0    |
-| `mmkvString()`     | /      |
-| `mmkvStringSet()`  | /      |
-| `mmkvBytes()`      | /      |
-| `mmkvParcelable()` | /      |
+| 类型         | 函数           | 默认值 |
+| ------------ | ------------------ | ------------- |
+| `Int`        | `mmkvInt()`        | 0             |
+| `Long`       | `mmkvLong()`       | 0L            |
+| `Boolean`    | `mmkvBool()`       | false         |
+| `Float`      | `mmkvFloat()`      | 0f            |
+| `Double`     | `mmkvDouble()`     | 0.0           |
+| `String`     | `mmkvString()`     | /             |
+| `Set<String>`| `mmkvStringSet()`  | /             |
+| `ByteArray`  | `mmkvBytes()`      | /             |
+| `Parcelable` | `mmkvParcelable()` | /             |
 
-支持用 `mmkvXXXX().asLiveData()` 函数将属性委托给 `LiveData`，例如：
+| 类型         | 函数           | 默认值 |
+| ----------------------------- | ------------------------------- | ------------- |
+| `MutableLiveData<Int>`        | `mmkvInt().asLiveData()`        | 0             |
+| `MutableLiveData<Long>`       | `mmkvLong().asLiveData()`       | 0L            |
+| `MutableLiveData<Boolean>`    | `mmkvBool().asLiveData()`       | false         |
+| `MutableLiveData<Float>`      | `mmkvFloat().asLiveData()`      | 0f            |
+| `MutableLiveData<Double>`     | `mmkvDouble.asLiveData()`        | 0.0           |
+| `MutableLiveData<String>`     | `mmkvString().asLiveData()`     | /             |
+| `MutableLiveData<Set<String>>`| `mmkvStringSet().asLiveData()`  | /             |
+| `MutableLiveData<ByteArray>`  | `mmkvBytes().asLiveData()`      | /             |
+| `MutableLiveData<Parcelable>` | `mmkvParcelable().asLiveData()` | /             |
 
-```kotlin
-object SettingRepository : MMKVOwner(mmapID = "settings") {
-  val isNightMode by mmkvBool().asLiveData()
-}
+| 类型         | 函数           | 默认值 |
+| ------------------------------ | -------------------------------- | ------------- |
+| `MutableStateFlow<Int>`        | `mmkvInt().asStateFlow()`        | 0             |
+| `MutableStateFlow<Long>`       | `mmkvLong().asStateFlow()`       | 0L            |
+| `MutableStateFlow<Boolean>`    | `mmkvBool().asStateFlow()`       | false         |
+| `MutableStateFlow<Float>`      | `mmkvFloat().asStateFlow()`      | 0f            |
+| `MutableStateFlow<Double>`     | `mmkvDouble().asStateFlow()`     | 0.0           |
+| `MutableStateFlow<String>`     | `mmkvString().asStateFlow()`     | /             |
+| `MutableStateFlow<Set<String>>`| `mmkvStringSet().asStateFlow()`  | /             |
+| `MutableStateFlow<ByteArray>`  | `mmkvBytes().asStateFlow()`      | /             |
+| `MutableStateFlow<Parcelable>` | `mmkvParcelable().asStateFlow()` | /             |
 
-SettingRepository.isNightMode.observe(this) {
-  checkBox.isChecked = it
-}
+| 类型         | 函数           | 默认值 |
+| -------------------------------- | -------------------------- | ------------- |
+| `MutableMap<String, Int>`        | `mmkvInt().asMap()`        | 0             |
+| `MutableMap<String, Long>`       | `mmkvLong().asMap()`       | 0L            |
+| `MutableMap<String, Boolean>`    | `mmkvBool().asMap()`       | false         |
+| `MutableMap<String, Float>`      | `mmkvFloat().asMap()`      | 0f            |
+| `MutableMap<String, Double>`     | `mmkvDouble().asMap()`     | 0.0           |
+| `MutableMap<String, String>`     | `mmkvString().asMap()`     | /             |
+| `MutableMap<String, Set<String>>`| `mmkvStringSet().asMap()`  | /             |
+| `MutableMap<String, ByteArray>`  | `mmkvBytes().asMap()`      | /             |
+| `MutableMap<String, Parcelable>` | `mmkvParcelable().asMap()` | /             |
 
-SettingRepository.isNightMode.value = true
-```
-
-可以用 `kv` 对象进行删除值或清理缓存等操作，例如：
-
-```kotlin
-kv.removeValueForKey(::language.name) // 建议修改了默认值才移除 key，否则赋值操作更简洁
-kv.clearAll()
-```
+可以用 `clearAllKV()` 清理缓存。
 
 ## 进阶用法
 
-### 取消自动初始化
+### 修改 MMKV 初始化配置
 
-本库会自动调用 `MMKV.initialize(context)` 进行初始化，如果在用了 MMKV 的项目中使用本库，建议把自动初始化给取消了，多次初始化可能会导致数据异常。
-
-需要添加 App Startup 的依赖：
-
-```groovy
-implementation "androidx.startup:startup-runtime:1.1.0"
-```
-
-然后在 `AndroidManifest.xml` 添加以下代码就能取消自动初始化操作：
+可以使用 `<meta-data/>` 来修改存储位置或者 log 等级。
 
 ```xml
-<application>
-  <provider
-    android:name="androidx.startup.InitializationProvider"
-    android:authorities="${applicationId}.androidx-startup"
-    android:exported="false"
-    tools:node="merge">
-    <meta-data
-      android:name="com.dylanc.mmkv.MMKVInitializer"
-      tools:node="remove" />
-  </provider>
-</application>
+<meta-data 
+  android:name="mmkv_dir" 
+  android:value="/mmkv_2" />
+
+<meta-data 
+  android:name="mmkv_log_level" 
+  android:value="debug" />
 ```
 
 ### 重写 kv 对象
