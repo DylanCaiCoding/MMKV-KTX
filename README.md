@@ -138,6 +138,7 @@ For more advanced usage, please refer to the [Usage Document](https://dylancaico
 | [Longan](https://github.com/DylanCaiCoding/Longan) | Perhaps the most user-friendly Kotlin tool library |
 | [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | Deep decoupling of the default page of the title bar or loading, loading failure, no data, etc. |
 | [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | Most comprehensive ViewBinding tool |
+| [MultiBaseUrls](https://github.com/DylanCaiCoding/MultiBaseUrls) | Use annotation to allow Retrofit to support multiple baseUrl and dynamically change baseUrl |
 | [Tracker](https://github.com/DylanCaiCoding/Tracker) | Lightweight burrowing framework based on the chain of responsibility burrowing idea of Buzzvideo |
 
 ## License
