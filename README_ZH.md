@@ -139,6 +139,7 @@ object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "
 | [Longan](https://github.com/DylanCaiCoding/Longan)           | 可能是最好用的 Kotlin 工具库                       |
 | [LoadingStateView](https://github.com/DylanCaiCoding/LoadingStateView) | 深度解耦标题栏或加载中、加载失败、无数据等缺省页 |
 | [ViewBindingKTX](https://github.com/DylanCaiCoding/ViewBindingKTX) | 最全面的 ViewBinding 工具                   |
+| [MultiBaseUrls](https://github.com/DylanCaiCoding/MultiBaseUrls) | 用注解让 Retrofit 同时支持多个 baseUrl 以及动态改变 baseUrl |
 | [Tracker](https://github.com/DylanCaiCoding/Tracker)         | 基于西瓜视频的责任链埋点思路实现的轻量级埋点框架         |
 
 ## License
