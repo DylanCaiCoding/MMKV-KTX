@@ -18,6 +18,7 @@ package com.dylanc.mmkv
 
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
+import com.dylanc.mmkv.property.MMKVListProperty
 import com.dylanc.mmkv.property.MMKVLiveDataProperty
 import com.dylanc.mmkv.property.MMKVMapProperty
 import com.dylanc.mmkv.property.MMKVProperty
@@ -75,6 +76,8 @@ interface IMMKVOwner {
   fun <V> MMKVProperty<V>.asStateFlow() = MMKVStateFlowProperty(this)
 
   fun <V> MMKVProperty<V>.asMap() = MMKVMapProperty(this)
+
+  fun <V> MMKVProperty<V>.asList() = MMKVListProperty(this)
 
   fun clearAllKV() = kv.clearAll()
 }

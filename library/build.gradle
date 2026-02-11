@@ -30,6 +30,11 @@ android {
         jvmTarget = '1.8'
         freeCompilerArgs += ['-module-name', "mmkv-ktx"]
     }
+    dependencies {
+        configurations.configureEach {
+            resolutionStrategy.force "androidx.concurrent:concurrent-futures:1.1.0"
+        }
+    }
 }
 
 dependencies {
