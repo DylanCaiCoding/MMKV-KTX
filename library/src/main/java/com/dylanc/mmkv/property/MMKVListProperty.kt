@@ -26,20 +26,22 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class MMKVListProperty<V>(
-  private val mmkvProperty: MMKVProperty<V>
+  private val mmkvProperty: BaseMMKVProperty<V>
 ) : ReadOnlyProperty<IMMKVOwner, MutableList<V>> {
   private var cache: MMKVList<V>? = null
 
   override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): MutableList<V> =
-    cache?.updateValues()
-      ?: MMKVList(thisRef.kv, property.name, mmkvProperty.decode, mmkvProperty.encode).also { cache = it }
+    cache?.updateValues() ?: MMKVList(
+      thisRef.kv, mmkvProperty.toName(property.name),
+      mmkvProperty::decode, mmkvProperty::encode
+    ).also { cache = it }
 }
 
 class MMKVList<V>(
   private val kv: MMKV,
   private val propertyName: String,
   private val decode: (String) -> V,
-  private val encode: Pair<String, V>.() -> Boolean,
+  private val encode: (String, V) -> Boolean,
   private val list: MutableList<V> = mutableListOf()
 ) : MutableList<V> by list {
   private val sizeName = "$propertyName\$size"
@@ -63,7 +65,7 @@ class MMKVList<V>(
     val newSize = list.size
     kv.encode(sizeName, newSize)
     for (index in list.indices) {
-      encode(index.addPrefix() to list[index])
+      encode(index.addPrefix(), list[index])
     }
     if (newSize < oldSize) {
       for (index in newSize until oldSize) {

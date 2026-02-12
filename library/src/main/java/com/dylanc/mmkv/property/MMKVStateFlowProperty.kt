@@ -21,17 +21,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-class MMKVStateFlowProperty<V>(private val mmkvProperty: MMKVProperty<V>) : ReadOnlyProperty<IMMKVOwner, MutableStateFlow<V>> {
+class MMKVStateFlowProperty<V>(
+  private val mmkvProperty: BaseMMKVProperty<V>
+) : ReadOnlyProperty<IMMKVOwner, MutableStateFlow<V>> {
   private var cache: MutableStateFlow<V>? = null
 
   override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): MutableStateFlow<V> =
-    cache ?: MMKVFlow(
+    cache ?: MMKVStateFlow(
       { mmkvProperty.getValue(thisRef, property) },
       { mmkvProperty.setValue(thisRef, property, it) }
     ).also { cache = it }
 }
 
-class MMKVFlow<V>(
+class MMKVStateFlow<V>(
   private val getMMKVValue: () -> V,
   private val setMMKVValue: (V) -> Unit,
   private val flow: MutableStateFlow<V> = MutableStateFlow(getMMKVValue())

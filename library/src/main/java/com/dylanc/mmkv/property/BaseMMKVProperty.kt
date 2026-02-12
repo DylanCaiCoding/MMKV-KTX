@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Dylan Cai
+ * Copyright (c) 2026. Dylan Cai
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,21 @@
 
 package com.dylanc.mmkv.property
 
-class MMKVProperty<V>(
-  private val decode: (String) -> V,
-  private val encode: Pair<String, V>.() -> Boolean
-) : BaseMMKVProperty<V>() {
-  override fun decode(key: String): V = decode.invoke(key)
+import com.dylanc.mmkv.IMMKVOwner
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
-  override fun encode(key: String, value: V) = encode.invoke(key to value)
+abstract class BaseMMKVProperty<V> : ReadWriteProperty<IMMKVOwner, V> {
+
+  override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): V =
+    decode(property.name)
+
+  override fun setValue(thisRef: IMMKVOwner, property: KProperty<*>, value: V) {
+    encode(property.name, value)
+  }
+
+  open fun toName(propertyName: String) = propertyName
+
+  abstract fun decode(key: String): V
+  abstract fun encode(key: String, value: V): Boolean
 }

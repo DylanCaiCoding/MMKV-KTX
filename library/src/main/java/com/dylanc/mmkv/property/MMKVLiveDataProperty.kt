@@ -21,7 +21,9 @@ import com.dylanc.mmkv.IMMKVOwner
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-class MMKVLiveDataProperty<V>(private val mmkvProperty: MMKVProperty<V>) : ReadOnlyProperty<IMMKVOwner, MutableLiveData<V>> {
+class MMKVLiveDataProperty<V>(
+  private val mmkvProperty: BaseMMKVProperty<V>
+) : ReadOnlyProperty<IMMKVOwner, MutableLiveData<V>> {
   private var cache: MutableLiveData<V>? = null
 
   override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): MutableLiveData<V> =

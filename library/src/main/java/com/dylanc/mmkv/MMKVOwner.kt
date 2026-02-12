@@ -18,10 +18,12 @@ package com.dylanc.mmkv
 
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
+import com.dylanc.mmkv.property.BaseMMKVProperty
 import com.dylanc.mmkv.property.MMKVListProperty
 import com.dylanc.mmkv.property.MMKVLiveDataProperty
 import com.dylanc.mmkv.property.MMKVMapProperty
 import com.dylanc.mmkv.property.MMKVProperty
+import com.dylanc.mmkv.property.MMKVPropertyWrapper
 import com.dylanc.mmkv.property.MMKVStateFlowProperty
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.flow.StateFlow
@@ -71,13 +73,15 @@ interface IMMKVOwner {
   fun mmkvBytes(default: ByteArray) =
     MMKVProperty({ kv.decodeBytes(it) ?: default }, { kv.encode(first, second) })
 
-  fun <V> MMKVProperty<V>.asLiveData() = MMKVLiveDataProperty(this)
+  fun <V> BaseMMKVProperty<V>.withKey(key: String) = MMKVPropertyWrapper(this, key)
 
-  fun <V> MMKVProperty<V>.asStateFlow() = MMKVStateFlowProperty(this)
+  fun <V> BaseMMKVProperty<V>.asLiveData() = MMKVLiveDataProperty(this)
 
-  fun <V> MMKVProperty<V>.asMap() = MMKVMapProperty(this)
+  fun <V> BaseMMKVProperty<V>.asStateFlow() = MMKVStateFlowProperty(this)
 
-  fun <V> MMKVProperty<V>.asList() = MMKVListProperty(this)
+  fun <V> BaseMMKVProperty<V>.asMap() = MMKVMapProperty(this)
+
+  fun <V> BaseMMKVProperty<V>.asList() = MMKVListProperty(this)
 
   fun clearAllKV() = kv.clearAll()
 }
