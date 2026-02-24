@@ -26,13 +26,13 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class MMKVListProperty<V>(
-  private val mmkvProperty: BaseMMKVProperty<V>
+  private val mmkvProperty: MMKVProperty<V>
 ) : ReadOnlyProperty<IMMKVOwner, MutableList<V>> {
   private var cache: MMKVList<V>? = null
 
   override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): MutableList<V> =
     cache?.updateValues() ?: MMKVList(
-      thisRef.kv, mmkvProperty.toName(property.name),
+      thisRef.kv, mmkvProperty.transformName(property.name),
       mmkvProperty::decode, mmkvProperty::encode
     ).also { cache = it }
 }

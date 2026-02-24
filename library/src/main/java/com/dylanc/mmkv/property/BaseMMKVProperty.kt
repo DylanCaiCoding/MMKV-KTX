@@ -23,14 +23,18 @@ import kotlin.reflect.KProperty
 abstract class BaseMMKVProperty<V> : ReadWriteProperty<IMMKVOwner, V> {
 
   override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): V =
-    decode(property.name)
+    decode(transformName(property.name))
 
   override fun setValue(thisRef: IMMKVOwner, property: KProperty<*>, value: V) {
-    encode(property.name, value)
+    encode(transformName(property.name), value)
+    onValueChanged(thisRef, property, value)
   }
 
-  open fun toName(propertyName: String) = propertyName
+  open fun transformName(name: String) = name
+
+  open fun onValueChanged(thisRef: IMMKVOwner, property: KProperty<*>, value: V) = Unit
 
   abstract fun decode(key: String): V
+
   abstract fun encode(key: String, value: V): Boolean
 }

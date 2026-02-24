@@ -21,26 +21,24 @@ import kotlin.collections.orEmpty
 import kotlin.collections.toMutableSet
 import kotlin.reflect.KProperty
 
-
-class MMKVPropertyWrapper<V>(
+class MMKVWithKeyProperty<V>(
   private val decorated: BaseMMKVProperty<V>,
   private val suffix: String
 ) : BaseMMKVProperty<V>() {
 
-  override fun setValue(thisRef: IMMKVOwner, property: KProperty<*>, value: V) {
-    super.setValue(thisRef, property, value)
+  override fun transformName(name: String) =
+    "${decorated.transformName(name)}$$$suffix"
 
-    val keysName = "${property.name}\$key"
-    val keys = thisRef.kv.decodeStringSet(keysName).orEmpty().toMutableSet()
+  override fun onValueChanged(thisRef: IMMKVOwner, property: KProperty<*>, value: V) {
+    val keysName = "${decorated.transformName(property.name)}\$key"
+    val allKeys = thisRef.kv.decodeStringSet(keysName).orEmpty().toMutableSet()
     if (value != null) {
-      thisRef.kv.encode(keysName, keys + property.name)
+      thisRef.kv.encode(keysName, allKeys + suffix)
     } else {
-      thisRef.kv.encode(keysName, keys - property.name)
+      thisRef.kv.encode(keysName, allKeys - suffix)
     }
+    decorated.onValueChanged(thisRef, property, value)
   }
-
-  override fun toName(propertyName: String) =
-    decorated.toName("$propertyName$$$suffix")
 
   override fun decode(key: String): V =
     decorated.decode(key)

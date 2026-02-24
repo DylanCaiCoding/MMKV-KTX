@@ -23,7 +23,7 @@ import com.dylanc.mmkv.property.MMKVListProperty
 import com.dylanc.mmkv.property.MMKVLiveDataProperty
 import com.dylanc.mmkv.property.MMKVMapProperty
 import com.dylanc.mmkv.property.MMKVProperty
-import com.dylanc.mmkv.property.MMKVPropertyWrapper
+import com.dylanc.mmkv.property.MMKVWithKeyProperty
 import com.dylanc.mmkv.property.MMKVStateFlowProperty
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.flow.StateFlow
@@ -73,15 +73,15 @@ interface IMMKVOwner {
   fun mmkvBytes(default: ByteArray) =
     MMKVProperty({ kv.decodeBytes(it) ?: default }, { kv.encode(first, second) })
 
-  fun <V> BaseMMKVProperty<V>.withKey(key: String) = MMKVPropertyWrapper(this, key)
+  fun <V> BaseMMKVProperty<V>.withKey(key: String) = MMKVWithKeyProperty(this, key)
 
-  fun <V> BaseMMKVProperty<V>.asLiveData() = MMKVLiveDataProperty(this)
+  fun <V> MMKVProperty<V>.asLiveData() = MMKVLiveDataProperty(this)
 
-  fun <V> BaseMMKVProperty<V>.asStateFlow() = MMKVStateFlowProperty(this)
+  fun <V> MMKVProperty<V>.asStateFlow() = MMKVStateFlowProperty(this)
 
-  fun <V> BaseMMKVProperty<V>.asMap() = MMKVMapProperty(this)
+  fun <V> MMKVProperty<V>.asMap() = MMKVMapProperty(this)
 
-  fun <V> BaseMMKVProperty<V>.asList() = MMKVListProperty(this)
+  fun <V> MMKVProperty<V>.asList() = MMKVListProperty(this)
 
   fun clearAllKV() = kv.clearAll()
 }
@@ -93,17 +93,43 @@ inline fun <reified T : Parcelable> IMMKVOwner.mmkvParcelable(default: T) =
   MMKVProperty({ kv.decodeParcelable(it, T::class.java) ?: default }, { kv.encode(first, second) })
 
 fun IMMKVOwner.getAllKV(): Map<String, Any?> = buildMap {
-  val types = arrayOf(MMKVProperty::class, MMKVLiveDataProperty::class, MMKVStateFlowProperty::class, MMKVMapProperty::class)
+  val types = arrayOf(
+    BaseMMKVProperty::class,
+    MMKVProperty::class,
+    MMKVLiveDataProperty::class,
+    MMKVStateFlowProperty::class,
+    MMKVMapProperty::class,
+    MMKVListProperty::class
+  )
+
+  fun resolveNestedValue(rootName: String, decode: (String) -> Any?): Any? {
+    val keys = kv.decodeStringSet("$rootName\$key")
+    if (!keys.isNullOrEmpty()) {
+      return keys.associateWith { key ->
+        resolveNestedValue("$rootName$$$key", decode)
+      }
+    }
+    return decode(rootName)
+  }
+
   this@getAllKV::class.memberProperties
     .filterIsInstance<KProperty1<IMMKVOwner, *>>()
     .forEach { property ->
       property.isAccessible = true
       val delegate = property.getDelegate(this@getAllKV)
       if (types.any { it.isInstance(delegate) }) {
-        this[property.name] = when (val value = property.get(this@getAllKV)) {
+        val value = property.get(this@getAllKV)
+        this[property.name] = when (value) {
           is LiveData<*> -> value.value
           is StateFlow<*> -> value.value
-          else -> value
+          else -> {
+            val base = delegate as? BaseMMKVProperty<*>
+            if (base != null) {
+              resolveNestedValue(property.name) { key -> base.decode(key) }
+            } else {
+              value
+            }
+          }
         }
       }
       property.isAccessible = false

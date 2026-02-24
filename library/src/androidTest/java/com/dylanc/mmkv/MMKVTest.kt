@@ -1,7 +1,6 @@
 package com.dylanc.mmkv
 
 import android.os.Parcelable
-import androidx.lifecycle.MutableLiveData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement
 import com.tencent.mmkv.MMKV
@@ -10,8 +9,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
 
 /**
  * @author Dylan Cai
@@ -44,6 +41,8 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   private val map1 by mmkvInt().asMap()
   private val map2 by mmkvInt(-1).asMap()
   private val list by mmkvInt().asList()
+  private var nested1 by mmkvString().withKey("aaa")
+  private var nested2 by mmkvString().withKey("aaa").withKey("bbb")
 
   override val kv: MMKV = MMKV.mmkvWithID(mmapID, MMKV.MULTI_PROCESS_MODE)
 
@@ -361,9 +360,12 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
     clearAllKV()
     map1["id1"] = 1
     map1["id2"] = 2
-    Assert.assertEquals(setOf("id1", "id2"), map1.keys)
+    list.add(3)
+    nested1 = "111"
+    nested2 = "222"
+
     val allKV = getAllKV()
-    Assert.assertEquals(24, allKV.size)
+    Assert.assertEquals(27, allKV.size)
     Assert.assertEquals(0, allKV["i1"])
     Assert.assertEquals(-1, allKV["i2"])
     Assert.assertEquals(0L, allKV["l1"])
@@ -388,6 +390,26 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
     Assert.assertEquals(-1, allKV["flow2"])
     Assert.assertEquals(mapOf("id1" to 1, "id2" to 2), allKV["map1"])
     Assert.assertEquals(emptyMap<String, Int>(), allKV["map2"])
+    Assert.assertEquals(listOf(3),allKV["list"])
+
+    val nested1 = allKV["nested1"] as Map<*, *>
+    Assert.assertEquals("111", nested1["aaa"])
+
+    val nested2 = allKV["nested2"] as Map<*, *>
+    val aaa = nested2["aaa"] as Map<*, *>
+    Assert.assertEquals("222", aaa["bbb"])
+  }
+
+  @Test
+  fun nameWithId_getOrPut() {
+    nested1 = "111"
+    Assert.assertEquals("111", kv.decodeString("nested1$\$aaa"))
+    Assert.assertEquals(setOf("aaa"), kv.decodeStringSet("nested1\$key"))
+
+    nested2 = "222"
+    Assert.assertEquals("222", kv.decodeString("nested2$\$aaa$\$bbb"))
+    Assert.assertEquals(setOf("aaa"), kv.decodeStringSet("nested2\$key"))
+    Assert.assertEquals(setOf("bbb"), kv.decodeStringSet("nested2$\$aaa\$key"))
   }
 
   @Parcelize

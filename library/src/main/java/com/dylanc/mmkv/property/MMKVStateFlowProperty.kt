@@ -22,7 +22,7 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class MMKVStateFlowProperty<V>(
-  private val mmkvProperty: BaseMMKVProperty<V>
+  private val mmkvProperty: MMKVProperty<V>
 ) : ReadOnlyProperty<IMMKVOwner, MutableStateFlow<V>> {
   private var cache: MutableStateFlow<V>? = null
 
