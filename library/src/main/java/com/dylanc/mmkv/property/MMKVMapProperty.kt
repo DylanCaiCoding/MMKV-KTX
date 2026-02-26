@@ -30,14 +30,17 @@ class MMKVMapProperty<V>(
   private var cache: MMKVMap<V>? = null
 
   override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): MutableMap<String, V> =
-    cache?.updateValues() ?: MMKVMap(thisRef.kv, property.name, mmkvProperty.decode, mmkvProperty.encode).also { cache = it }
+    cache?.updateValues() ?: MMKVMap(
+      thisRef.kv, mmkvProperty.transformName(property.name),
+      mmkvProperty::decode, mmkvProperty::encode
+    ).also { cache = it }
 }
 
 class MMKVMap<V>(
   private val kv: MMKV,
   private val propertyName: String,
   private val decode: (String) -> V,
-  private val encode: Pair<String, V>.() -> Boolean,
+  private val encode: (String, V) -> Boolean,
   private val map: MutableMap<String, V> = mutableMapOf()
 ) : MutableMap<String, V> by map {
   private val keysName = "$propertyName\$key"
@@ -59,13 +62,13 @@ class MMKVMap<V>(
 
   override fun put(key: String, value: V): V? =
     map.put(key, value).also {
-      encode(key.addPrefix() to value)
+      encode(key.addPrefix(), value)
       kv.encode(keysName, keys + key)
     }
 
   override fun putAll(from: Map<out String, V>) =
     map.putAll(from).also {
-      from.forEach { (key, value) -> encode(key.addPrefix() to value) }
+      from.forEach { (key, value) -> encode(key.addPrefix(), value) }
       kv.encode(keysName, keys + from.keys)
     }
 
@@ -74,7 +77,7 @@ class MMKVMap<V>(
     val isAbsent = map.containsKey(key).not()
     return map.putIfAbsent(key, value).also {
       if (isAbsent) {
-        encode(key.addPrefix() to value)
+        encode(key.addPrefix(), value)
         kv.encode(keysName, keys + key)
       }
     }
@@ -84,7 +87,7 @@ class MMKVMap<V>(
   override fun merge(key: String, value: V & Any, remappingFunction: BiFunction<in V & Any, in V & Any, out V?>): V? =
     map.merge(key, value, remappingFunction).also {
       if (it != null) {
-        encode(key.addPrefix() to it)
+        encode(key.addPrefix(), it)
         kv.encode(keysName, keys + key)
       }
     }
@@ -107,20 +110,20 @@ class MMKVMap<V>(
   @RequiresApi(Build.VERSION_CODES.N)
   override fun replace(key: String, value: V): V? =
     map.replace(key, value).also {
-      if (containsKey(key)) encode(key.addPrefix() to value)
+      if (containsKey(key)) encode(key.addPrefix(), value)
     }
 
   @RequiresApi(Build.VERSION_CODES.N)
   override fun replace(key: String, oldValue: V, newValue: V): Boolean =
     map.replace(key, oldValue, newValue).also { replaced ->
-      if (replaced) encode(key.addPrefix() to newValue)
+      if (replaced) encode(key.addPrefix(), newValue)
     }
 
   @RequiresApi(Build.VERSION_CODES.N)
   override fun replaceAll(function: BiFunction<in String, in V, out V>) =
     map.replaceAll { key, value ->
       function.apply(key, value)
-        .also { encode(key.addPrefix() to it) }
+        .also { encode(key.addPrefix(), it) }
     }
 
   override fun clear() {
@@ -156,7 +159,7 @@ class MMKVMap<V>(
               lastKey = entry.key
               return object : MutableMap.MutableEntry<String, V> by entry {
                 override fun setValue(newValue: V): V =
-                  entry.setValue(newValue).also { encode(key.addPrefix() to newValue) }
+                  entry.setValue(newValue).also { encode(key.addPrefix(), newValue) }
               }
             }
           }

@@ -9,8 +9,6 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
 
 /**
  * @author Dylan Cai
@@ -42,19 +40,11 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   private val flow2 by mmkvInt(default = -1).asStateFlow()
   private val map1 by mmkvInt().asMap()
   private val map2 by mmkvInt(-1).asMap()
+  private val list by mmkvInt().asList()
+  private var nested1 by mmkvString().withKey("aaa")
+  private var nested2 by mmkvString().withKey("aaa").withKey("bbb")
 
   override val kv: MMKV = MMKV.mmkvWithID(mmapID, MMKV.MULTI_PROCESS_MODE)
-
-//  private val test by TestProperty()
-
-  class TestProperty: ReadWriteProperty<Any, Int> {
-    override fun getValue(thisRef: Any, property: KProperty<*>): Int {
-      return 1
-    }
-
-    override fun setValue(thisRef: Any, property: KProperty<*>, value: Int) {
-    }
-  }
 
   @Before
   fun clear() {
@@ -62,91 +52,91 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putInt1() {
+  fun intDefaultZero_putAndGet() {
     Assert.assertEquals(0, i1)
     i1 = 6
     Assert.assertEquals(6, i1)
   }
 
   @Test
-  fun putInt2() {
+  fun intDefaultMinusOne_putAndGet() {
     Assert.assertEquals(-1, i2)
     i2 = 6
     Assert.assertEquals(6, i2)
   }
 
   @Test
-  fun putLong1() {
+  fun longDefaultZero_putAndGet() {
     Assert.assertEquals(0L, l1)
     l1 = 3L
     Assert.assertEquals(3L, l1)
   }
 
   @Test
-  fun putLong2() {
+  fun longDefaultMinusOne_putAndGet() {
     Assert.assertEquals(-1L, l2)
     l2 = 3L
     Assert.assertEquals(3L, l2)
   }
 
   @Test
-  fun putBoolean1() {
+  fun boolDefaultFalse_putAndGet() {
     Assert.assertEquals(false, b1)
     b1 = true
     Assert.assertEquals(true, b1)
   }
 
   @Test
-  fun putBoolean2() {
+  fun boolDefaultTrue_putAndGet() {
     Assert.assertEquals(true, b2)
     b2 = true
     Assert.assertEquals(true, b2)
   }
 
   @Test
-  fun putFloat1() {
+  fun floatDefaultZero_putAndGet() {
     Assert.assertEquals(0f, f1)
     f1 = 0.5f
     Assert.assertEquals(0.5f, f1)
   }
 
   @Test
-  fun putFloat2() {
+  fun floatDefaultMinusOne_putAndGet() {
     Assert.assertEquals(-1f, f2)
     f2 = 0.5f
     Assert.assertEquals(0.5f, f2)
   }
 
   @Test
-  fun putDouble1() {
+  fun doubleDefaultZero_putAndGet() {
     Assert.assertEquals(0.0, d1, 0.0)
     d1 = 0.5
     Assert.assertEquals(0.5, d1, 0.0)
   }
 
   @Test
-  fun putDouble2() {
+  fun doubleDefaultMinusOne_putAndGet() {
     Assert.assertEquals(-1.0, d2, 0.0)
     d2 = 0.5
     Assert.assertEquals(0.5, d2, 0.0)
   }
 
   @Test
-  fun putString1() {
+  fun stringDefaultNull_putAndGet() {
     Assert.assertEquals(null, s1)
     s1 = "test"
     Assert.assertEquals("test", s1)
   }
 
   @Test
-  fun putString2() {
+  fun stringDefaultEmpty_putAndGet() {
     Assert.assertEquals("", s2)
     s2 = "test"
     Assert.assertEquals("test", s2)
   }
 
   @Test
-  fun putSet1() {
+  fun stringSetDefaultNull_putAndGet() {
     Assert.assertEquals(null, set1)
     val set = setOf("22", "33")
     set1 = set
@@ -154,7 +144,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putSet2() {
+  fun stringSetDefaultEmpty_putAndGet() {
     Assert.assertEquals(emptySet<String>(), set2)
     val set = setOf("22", "33")
     set2 = set
@@ -162,7 +152,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putBytes1() {
+  fun bytesDefaultNull_putAndGet() {
     Assert.assertEquals(null, bytes1)
     val bytes = byteArrayOf(0x1A, 0x2B)
     bytes1 = bytes
@@ -170,7 +160,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putBytes2() {
+  fun bytesDefaultValue_putAndGet() {
     Assert.assertTrue(byteArrayOf(0x1A).contentEquals(bytes2))
     val bytes = byteArrayOf(0x1A, 0x2B)
     bytes2 = bytes
@@ -178,21 +168,21 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putParcelable1() {
+  fun parcelableDefaultNull_putAndGet() {
     Assert.assertEquals(null, user1)
     user1 = User(1, "DylanCai")
     Assert.assertEquals(User(1, "DylanCai"), user1)
   }
 
   @Test
-  fun putParcelable2() {
+  fun parcelableDefaultValue_putAndGet() {
     Assert.assertEquals(User(0, "Admin"), user2)
     user2 = User(1, "DylanCai")
     Assert.assertEquals(User(1, "DylanCai"), user2)
   }
 
   @Test
-  fun putLiveData1() {
+  fun liveDataDefaultZero_putAndGet() {
     UiThreadStatement.runOnUiThread {
       Assert.assertEquals(0, liveData1.value)
       liveData1.value = 6
@@ -203,7 +193,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putLiveData2() {
+  fun liveDataDefaultMinusOne_putAndGet() {
     UiThreadStatement.runOnUiThread {
       Assert.assertEquals(-1, liveData2.value)
       liveData2.value = 6
@@ -214,7 +204,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putFlow1() {
+  fun stateFlowDefaultZero_putAndGet() {
     Assert.assertEquals(0, flow1.value)
     flow1.value = 6
     Assert.assertEquals(6, flow1.value)
@@ -223,7 +213,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putFlow2() {
+  fun stateFlowDefaultMinusOne_putAndGet() {
     Assert.assertEquals(-1, flow2.value)
     flow2.value = 6
     Assert.assertEquals(6, flow2.value)
@@ -232,7 +222,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putMapData1() {
+  fun mapDefaultZero_putAndGet() {
     Assert.assertEquals(0, map1["id1"])
     Assert.assertEquals(0, map1["id2"])
     map1["id1"] = 1
@@ -250,7 +240,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun putMapData2() {
+  fun mapDefaultMinusOne_putAndGet() {
     Assert.assertEquals(-1, map2["id1"])
     Assert.assertEquals(-1, map2["id2"])
     map2["id1"] = 1
@@ -271,7 +261,57 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun removeValueForKey() {
+  fun list_putAndGet() {
+    Assert.assertTrue(list.isEmpty())
+    list.add(1)
+    list.add(2)
+    Assert.assertEquals(listOf(1, 2), list.toList())
+    list.removeAt(0)
+    Assert.assertEquals(listOf(2), list.toList())
+    clearAllKV()
+    Assert.assertTrue(list.isEmpty())
+  }
+
+  @Test
+  fun list_indexOperations_keepOrder() {
+    list.addAll(listOf(1, 2, 3))
+    list.add(1, 9)
+    Assert.assertEquals(listOf(1, 9, 2, 3), list.toList())
+    list[2] = 7
+    Assert.assertEquals(listOf(1, 9, 7, 3), list.toList())
+    list.removeAt(0)
+    Assert.assertEquals(listOf(9, 7, 3), list.toList())
+  }
+
+  @Test
+  fun list_duplicatesAndSearch_work() {
+    list.addAll(listOf(1, 2, 2, 3))
+    Assert.assertTrue(list.contains(2))
+    Assert.assertEquals(1, list.indexOf(2))
+    Assert.assertEquals(2, list.lastIndexOf(2))
+    list.remove(2)
+    Assert.assertEquals(listOf(1, 2, 3), list.toList())
+  }
+
+  @Test
+  fun list_snapshot_isIndependent() {
+    list.addAll(listOf(1, 2, 3))
+    val snapshot = list.toList()
+    list.add(4)
+    Assert.assertEquals(listOf(1, 2, 3), snapshot)
+    Assert.assertEquals(listOf(1, 2, 3, 4), list.toList())
+  }
+
+  @Test
+  fun list_removeAtEmpty_throws() {
+    Assert.assertTrue(list.isEmpty())
+    Assert.assertThrows(IndexOutOfBoundsException::class.java) {
+      list.removeAt(0)
+    }
+  }
+
+  @Test
+  fun mapEntryIteratorRemovals_work() {
     map1["id1"] = 1
     map1["id2"] = 2
     Assert.assertEquals(1, map1["id1"])
@@ -297,7 +337,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun removeValue() {
+  fun removeSingleKey() {
     i1 = 6
     Assert.assertTrue(kv.containsKey(::i1.name))
     kv.removeValueForKey(::i1.name)
@@ -305,7 +345,7 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun removeValues() {
+  fun removeMultipleKeys() {
     s1 = "1"
     s2 = "2"
     Assert.assertTrue(kv.containsKey(::s1.name))
@@ -316,13 +356,16 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
   }
 
   @Test
-  fun getAll() {
+  fun getAllKV_includesDefaultsAndCollections() {
     clearAllKV()
     map1["id1"] = 1
     map1["id2"] = 2
-    Assert.assertEquals(setOf("id1", "id2"), map1.keys)
+    list.add(3)
+    nested1 = "111"
+    nested2 = "222"
+
     val allKV = getAllKV()
-    Assert.assertEquals(24, allKV.size)
+    Assert.assertEquals(27, allKV.size)
     Assert.assertEquals(0, allKV["i1"])
     Assert.assertEquals(-1, allKV["i2"])
     Assert.assertEquals(0L, allKV["l1"])
@@ -347,6 +390,26 @@ class MMKVTest : IMMKVOwner by MMKVOwner(mmapID = "test") {
     Assert.assertEquals(-1, allKV["flow2"])
     Assert.assertEquals(mapOf("id1" to 1, "id2" to 2), allKV["map1"])
     Assert.assertEquals(emptyMap<String, Int>(), allKV["map2"])
+    Assert.assertEquals(listOf(3),allKV["list"])
+
+    val nested1 = allKV["nested1"] as Map<*, *>
+    Assert.assertEquals("111", nested1["aaa"])
+
+    val nested2 = allKV["nested2"] as Map<*, *>
+    val aaa = nested2["aaa"] as Map<*, *>
+    Assert.assertEquals("222", aaa["bbb"])
+  }
+
+  @Test
+  fun nameWithId_getOrPut() {
+    nested1 = "111"
+    Assert.assertEquals("111", kv.decodeString("nested1$\$aaa"))
+    Assert.assertEquals(setOf("aaa"), kv.decodeStringSet("nested1\$key"))
+
+    nested2 = "222"
+    Assert.assertEquals("222", kv.decodeString("nested2$\$aaa$\$bbb"))
+    Assert.assertEquals(setOf("aaa"), kv.decodeStringSet("nested2\$key"))
+    Assert.assertEquals(setOf("bbb"), kv.decodeStringSet("nested2$\$aaa\$key"))
   }
 
   @Parcelize

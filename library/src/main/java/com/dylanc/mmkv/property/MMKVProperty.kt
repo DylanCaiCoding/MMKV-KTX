@@ -16,18 +16,11 @@
 
 package com.dylanc.mmkv.property
 
-import com.dylanc.mmkv.IMMKVOwner
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
-
 class MMKVProperty<V>(
-  internal val decode: (String) -> V,
-  internal val encode: Pair<String, V>.() -> Boolean
-) : ReadWriteProperty<IMMKVOwner, V> {
-  override fun getValue(thisRef: IMMKVOwner, property: KProperty<*>): V =
-    decode(property.name)
+  private val decode: (String) -> V,
+  private val encode: Pair<String, V>.() -> Boolean
+) : BaseMMKVProperty<V>() {
+  override fun decode(key: String): V = decode.invoke(key)
 
-  override fun setValue(thisRef: IMMKVOwner, property: KProperty<*>, value: V) {
-    encode((property.name) to value)
-  }
+  override fun encode(key: String, value: V) = encode.invoke(key to value)
 }
