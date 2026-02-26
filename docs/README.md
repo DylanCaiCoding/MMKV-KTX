@@ -10,8 +10,10 @@
 -   自动初始化 MMKV ；
 -   用属性名作为键名，无需声明大量的键名常量；
 -   可以确保类型安全，避免类型或者键名不一致导致的异常；
+-   支持分组保存数据，可无限地分组嵌套；
 -   支持转换成 `LiveData` 和 `StateFlow` 来使用；
 -   支持转换成 `Map`，可以根据不同的 `id` 来保存数据；
+-   支持转换成 `List`, 可以用数组的形式保存数据；
 -   支持 `getAllKV()`，为数据迁移提供了可能性；
 
 ## 快速入门
@@ -45,7 +47,7 @@ dependencyResolutionManagement {
     
 ```kotlin
 dependencies {
-  implementation("com.github.DylanCaiCoding:MMKV-KTX:2.0.1")
+  implementation("com.github.DylanCaiCoding:MMKV-KTX:2.3.0")
 }
 ```
 
@@ -66,9 +68,29 @@ object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "
 }
 ```
 
-**要确保每个 `mmapID` 不重复，只有这样才能 100% 确保类型安全！！！**
+**要确保每个 `mmapID` 不重复，只有这样才能 100% 确保类型安全！！！**
 
-设置或获取属性的值会调用对应的 encode() 或 decode() 函数，用属性名作为键名。
+设置或获取属性的值会调用对应的 `encode()` 或 `decode()` 函数，用属性名作为键名。
+
+支持使用 `withKey()` 函数，对数据进行分组缓存。比如需求是要对每个登录过的用户，都要缓存不同的配置。这就可以用下面的方式来实现：
+
+```kotlin
+class UserSettingsRepository(userId: String) : MMKVOwner(mmapID = "user_settings") {
+  var isNightMode by mmkvBool().withKey(userId)
+  var language by mmkvString(default = "zh").withKey(userId)
+}
+```
+
+该 `Repository` 对象就是管理构造函数传入的 `id` 所对应的一套缓存数据。而且可以无限嵌套分组，比如:
+
+```kotlin
+class DeviceSettingsRepository(userId: String, deviceId: String) : MMKVOwner(mmapID = "device_settings") {
+  var isNotificationEnabled by mmkvBool().withKey(userId).withKey(deviceId)
+  var isAutoOTA by mmkvBool().withKey(userId).withKey(deviceId)
+}
+```
+
+支持以下类型的数据 (注意 `withKey()` 的分组用法仅支持基础类型)：
 
 支持以下类型：
 
@@ -120,6 +142,18 @@ object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "
 | `MutableMap<String, ByteArray>`  | `mmkvBytes().asMap()`      | /             |
 | `MutableMap<String, Parcelable>` | `mmkvParcelable().asMap()` | /             |
 
+| 类型         | 函数           | 默认值 |
+| -------------------------- | --------------------------- | ------------- |
+| `MutableList<Int>`         | `mmkvInt().asList()`        | 0             |
+| `MutableList<Long>`        | `mmkvLong().asList()`       | 0L            |
+| `MutableList<Boolean>`     | `mmkvBool().asList()`       | false         |
+| `MutableList<Float>`       | `mmkvFloat().asList()`      | 0f            |
+| `MutableList<Double>`      | `mmkvDouble().asList()`     | 0.0           |
+| `MutableList<String>`      | `mmkvString().asList()`     | /             |
+| `MutableList<Set<String>>` | `mmkvStringSet().asList()`  | /             |
+| `MutableList<ByteArray>`   | `mmkvBytes().asList()`      | /             |
+| `MutableList<Parcelable>`  | `mmkvParcelable().asList()` | /             |·
+
 可以用 `clearAllKV()` 清理缓存。
 
 ## 进阶用法
@@ -154,34 +188,12 @@ object SettingsRepository : MMKVOwner(mmapID = "settings") {
 }
 ```
 
-或者：
-
-```kotlin
-object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "settings") {
-  // ...
-
-  override val kv: MMKV = MMKV.mmkvWithID(mmapID, MMKV.MULTI_PROCESS_MODE)
-}
-```
-
 #### 加密
 
 MMKV 默认明文存储所有 key-value，依赖 Android 系统的沙盒机制保证文件加密。如果你担心信息泄露，你可以选择加密 MMKV。
 
 ```kotlin
 object SettingsRepository : MMKVOwner(mmapID = "settings") {
-  // ...
-
-  private const val CRYPT_KEY = "My-Encrypt-Key"
-
-  override val kv: MMKV = MMKV.mmkvWithID(mmapID, MMKV.SINGLE_PROCESS_MODE, CRYPT_KEY)
-}
-```
-
-或者：
-
-```kotlin
-object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "settings") {
   // ...
 
   private const val CRYPT_KEY = "My-Encrypt-Key"

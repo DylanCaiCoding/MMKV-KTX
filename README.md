@@ -12,8 +12,10 @@ Combined with the features of Kotlin property delegation makes [MMKV](https://gi
 - Automatically initializes MMKV;
 - Uses property names as keys, eliminating the need to declare numerous key constants;
 - Ensures type safety, avoiding exceptions caused by type or key mismatches;
+- Supports grouping data storage with infinite nested grouping;
 - Supports conversion to `LiveData` and `StateFlow` for usage;
 - Supports conversion to Map, allowing data to be saved based on different ids;
+- Supports conversion to `List`, allowing data to be saved as arrays;
 - Supports `getAllKV()`, providing the possibility for data migration.
 
 ## Usage
@@ -50,7 +52,7 @@ Add the dependency:
 
 ```kotlin
 dependencies {
-    implementation("com.github.DylanCaiCoding:MMKV-KTX:2.0.1")
+    implementation("com.github.DylanCaiCoding:MMKV-KTX:2.3.0")
 }
 ```
 
@@ -59,7 +61,7 @@ By having a class inherit from the `MMKVOwner` class, you can use the `by mmkvXX
 ```kotlin
 object SettingsRepository : MMKVOwner(mmapID = "settings") {
   var isNightMode by mmkvBool()
-  var language by mmkvString(default = "zh")
+  var language by mmkvString(default = "en")
 }
 ```
 
@@ -75,7 +77,25 @@ object SettingsRepository : BaseRepository(), IMMKVOwner by MMKVOwner(mmapID = "
 
 Setting or getting the property values will call the corresponding `encode()` or `decode()` functions, with the property name used as the key.
 
-Support the following types:
+Use `withKey()` to group cached data. For example, if you need to store different settings for each logged-in user, you can do it like this:
+
+```kotlin
+class UserSettingsRepository(userId: String) : MMKVOwner(mmapID = "user_settings") {
+  var isNightMode by mmkvBool().withKey(userId)
+  var language by mmkvString(default = "en").withKey(userId)
+}
+```
+
+This repository manages a set of cached data for the `id` passed to the constructor. It also supports infinite nested grouping, for example:
+
+```kotlin
+class DeviceSettingsRepository(userId: String, deviceId: String) : MMKVOwner(mmapID = "device_settings") {
+  var isNotificationEnabled by mmkvBool().withKey(userId).withKey(deviceId)
+  var isAutoOTA by mmkvBool().withKey(userId).withKey(deviceId)
+}
+```
+
+Supported types (note: the grouping usage of `withKey()` only supports base types):
 
 | Type         | Function           | Default value |
 | ------------ | ------------------ | ------------- |
@@ -124,6 +144,18 @@ Support the following types:
 | `MutableMap<String, Set<String>>`| `mmkvStringSet().asMap()`  | /             |
 | `MutableMap<String, ByteArray>`  | `mmkvBytes().asMap()`      | /             |
 | `MutableMap<String, Parcelable>` | `mmkvParcelable().asMap()` | /             |
+
+| Type                       | Function                    | Default value |
+| -------------------------- | --------------------------- | ------------- |
+| `MutableList<Int>`         | `mmkvInt().asList()`        | 0             |
+| `MutableList<Long>`        | `mmkvLong().asList()`       | 0L            |
+| `MutableList<Boolean>`     | `mmkvBool().asList()`       | false         |
+| `MutableList<Float>`       | `mmkvFloat().asList()`      | 0f            |
+| `MutableList<Double>`      | `mmkvDouble().asList()`     | 0.0           |
+| `MutableList<String>`      | `mmkvString().asList()`     | /             |
+| `MutableList<Set<String>>` | `mmkvStringSet().asList()`  | /             |
+| `MutableList<ByteArray>`   | `mmkvBytes().asList()`      | /             |
+| `MutableList<Parcelable>`  | `mmkvParcelable().asList()` | /             |
 
 For more advanced usage, please refer to the [Usage Document](https://dylancaicoding.github.io/MMKV-KTX).
 
